@@ -95,7 +95,11 @@ classdef HoloVidsHolder < handle
             vid_obj = self.vid_obj_map(vid_name_no_ext);
             vid_obj_dummy = vid_obj.copy();
             vid_obj_dummy.clear_frame_imgs_for_saving_labels();
-            save(['label_files\' vid_name_no_ext '_bboxes.mat'], 'vid_obj_dummy');
+            file_path = ['label_files\' vid_name_no_ext '_bboxes.mat'];
+            if isunix()
+                file_path = regexprep(file_path, '\\', '/');
+            end
+            save(file_path, 'vid_obj_dummy');
             % end
         end
         
@@ -115,7 +119,11 @@ classdef HoloVidsHolder < handle
            idx = find(contains(file_names, 'bboxes.mat'));
            if ~isempty(idx)
                for i=1:length(idx)
-                    load(['label_files\' file_names{idx(i)}], 'vid_obj_dummy');
+                   file_path =   ['label_files\' file_names{idx(i)}];
+                   if isunix()
+                        file_path = regexprep(file_path, '\\', '/');
+                    end
+                    load(file_path, 'vid_obj_dummy');
                     vid_obj_dummy.reload_saved_vid(new_vid_folder);
                     vid_obj_dummy.set_parent_axes_obj(self.ax_obj_for_vid_disp);
                     self.add_holo_vid_obj_to_map(vid_obj_dummy);
