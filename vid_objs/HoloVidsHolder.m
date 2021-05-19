@@ -96,9 +96,17 @@ classdef HoloVidsHolder < handle
             vid_obj_dummy = vid_obj.copy();
             vid_obj_dummy.clear_frame_imgs_for_saving_labels();
             file_path = ['label_files\' vid_name_no_ext '_bboxes.mat'];
+
+            curr_dir = pwd;
+            curr_dir = regexprep(curr_dir, '(\\|/)holo_vid_label.*', '');
+            app_dir = [curr_dir '\holo_vid_label'];
+
             if isunix()
                 file_path = regexprep(file_path, '\\', '/');
+                app_dir = regexprep(curr_dir, '\\', '/');
             end
+            cd(app_dir); %fixes behavior of not being able to save ifinside
+            %one of the app's internal folders
             save(file_path, 'vid_obj_dummy');
             % end
         end

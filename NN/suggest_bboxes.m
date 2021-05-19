@@ -15,7 +15,15 @@ end
 
 function NN = download_detect_file_if_not_present()
     script_folder = matlab.desktop.editor.getActiveFilename;
-    script_folder = regexprep(script_folder,'\\(\w+_*\w*)+\.m','');
+    if isunix()
+        script_folder = regexprep(script_folder,'/(\w+_*\w*)+\.m','');
+    else
+        script_folder = regexprep(script_folder,'\\(\w+_*\w*)+\.m','');
+    end
+    
+    if isempty(script_folder)
+        script_folder = 'NN';
+    end
     return_folder = cd(script_folder);
     NN = [];
     ME = MException.empty();

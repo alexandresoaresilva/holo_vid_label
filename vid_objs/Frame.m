@@ -121,10 +121,18 @@ classdef Frame < handle
             if self.fr_has_at_least_one_bbox()
                 idx = self.get_selected_bbox_idx();
                 bbox_copy = self.bboxes(idx).copy;
-                bbox_copy.StripeColor = bbox_copy.Color;
+                bbox_copy = self.change_color_if_diff_from_def(bbox_copy);
                 bbox_copy.Parent = self.ax_obj_parent;
                 self.add_bbox_to_rect_array(bbox_copy);
             end
+        end
+        
+        function bbox = change_color_if_diff_from_def(self, bbox)
+            if nargin < 2
+               idx = self.get_selected_bbox_idx();
+               bbox = self.bboxes(idx);
+            end
+            bbox.StripeColor = bbox.Color;
         end
         function store_princip_bboxes_n_clear_bbox_array(self)
             if self.fr_has_at_least_one_bbox

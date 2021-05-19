@@ -43,7 +43,11 @@ classdef HoloVid < matlab.mixin.Copyable
                 self.is_empty = false;
                 self.framerate = 5;
                 self.bboxes_have_been_consolidated = false;
-                self.vid_name = regexprep(vid_path_n_name,'.*\\','');
+                if isunix()
+                    self.vid_name = regexprep(vid_path_n_name,'.*/','');
+                else
+                    self.vid_name = regexprep(vid_path_n_name,'.*\\','');
+                end
                 self.vid_file_path = regexprep(vid_path_n_name, self.vid_name,'');
                 self.vid_file_path = self.vid_file_path(1:end-1); %eliminates \
                 self.sqr_fr_side_sz = sqr_fr_side_sz;
@@ -89,11 +93,21 @@ classdef HoloVid < matlab.mixin.Copyable
 %             end
         end
         
+        function change_bbox_color(self)
+            fr = self.get_frame();
+            fr.change_color_if_diff_from_def();
+        end
+        
         function paste_selected_bbox(self)
             fr = self.get_frame();
             fr.duplicate_selected_bbox();
-%             self.apply_bboxes_to_all_fr_that_follow_above_cutoff();
         end
+        
+        function change_color_of_selected_bbox(self) %used when bbox was suggested by 
+            fr = self.get_frame();
+            fr.duplicate_selected_bbox();
+        end
+        
         function set_show_I_minmax(self, checkbox_value)
             self.clear_ax_obj_parent_for_bboxes();
             self.show_I_minmax = checkbox_value;
@@ -208,9 +222,15 @@ classdef HoloVid < matlab.mixin.Copyable
                 ME = MException.empty();
                 try
                     internal_vid_path = regexprep(internal_vid_path,'\\+','\');
+                    if isunix()
+                        internal_vid_path = regexprep(internal_vid_path, '\\','/');
+                    end
                     self.store_fr_imgs_into_Frame_objs(internal_vid_path);
                 catch ME
                     external_vid_path = regexprep(external_vid_path,'\\+','\');
+                    if isunix()
+                        external_vid_path = regexprep(external_vid_path, '\\','/');
+                    end
                     self.store_fr_imgs_into_Frame_objs(external_vid_path);
                 end
 %                 if ~isempty(ME)
@@ -239,7 +259,7 @@ classdef HoloVid < matlab.mixin.Copyable
         function load_vid(self, vid_file_path)
             vid = VideoReader(vid_file_path);
             i = 1;
-            %             dummy_frames = Frame();
+            dummy_frames = Frame();
             while hasFrame(vid)
                 I = readFrame(vid);
                 dummy_frames(i) = Frame(i, I, self.parent_ax_obj, self.sqr_fr_side_sz);
