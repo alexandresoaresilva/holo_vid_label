@@ -103,7 +103,7 @@ classdef HoloVidsHolder < handle
 
             if isunix()
                 file_path = regexprep(file_path, '\\', '/');
-                app_dir = regexprep(curr_dir, '\\', '/');
+                app_dir = regexprep(app_dir, '\\', '/');
             end
             cd(app_dir); %fixes behavior of not being able to save ifinside
             %one of the app's internal folders

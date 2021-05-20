@@ -1,6 +1,6 @@
 function [bbox, scores] = suggest_bboxes(I, ref_score)
     if nargin < 2
-        ref_score = 0.65;
+        ref_score = 0.75;
     end
     I_resized = imresize(I, [224 224]);
     persistent NN
@@ -16,14 +16,11 @@ end
 function NN = download_detect_file_if_not_present()
     script_folder = matlab.desktop.editor.getActiveFilename;
     if isunix()
-        script_folder = regexprep(script_folder,'/(\w+_*\w*)+\.m','');
+        script_folder = regexprep(script_folder,'/\w+(_*\w*)*\.m','');
     else
-        script_folder = regexprep(script_folder,'\\(\w+_*\w*)+\.m','');
+        script_folder = regexprep(script_folder,'\\\w+(_*\w*)*\.m','');
     end
     
-    if isempty(script_folder)
-        script_folder = 'NN';
-    end
     return_folder = cd(script_folder);
     NN = [];
     ME = MException.empty();

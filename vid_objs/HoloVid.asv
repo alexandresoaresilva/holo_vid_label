@@ -116,7 +116,7 @@ classdef HoloVid < matlab.mixin.Copyable
         function next_fr(self, apply_bboxes_to_next_fr)
             
             if apply_bboxes_to_next_fr
-                self.copy_bboxes_to_subsequent_frame();
+                self.apply_bboxes_to_subsequent_frame();
             end
             self.clear_ax_obj_parent_for_bboxes();
             
@@ -292,8 +292,8 @@ classdef HoloVid < matlab.mixin.Copyable
             end
         end
         
-        function copy_bboxes_to_subsequent_frame(self)
-            if self.selected_fr_no < self.no_of_frames
+        function co_bboxes_to_subsequent_frame(self)
+            if self.selected_fr_no >= self.no_of_frames
                 fr = self.get_frame();
                 all_bboxes_copy_fr = fr.get_all_rect_bboxes();
                 fr_subsequent = self.get_frame(self.selected_fr_no + 1);
