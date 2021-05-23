@@ -14,12 +14,12 @@ function [bbox, scores] = suggest_bboxes(I, ref_score)
 end
 
 function NN = download_detect_file_if_not_present()
-    script_folder = matlab.desktop.editor.getActiveFilename;
+    script_folder = mfilename('fullpath');
+    slash = '\\';
     if isunix()
-        script_folder = regexprep(script_folder,'/\w+(_*\w*)*\.m','');
-    else
-        script_folder = regexprep(script_folder,'\\\w+(_*\w*)*\.m','');
+        slash = '/';
     end
+    script_folder = regexprep(script_folder,[slash '\w+(_*\w*)*$'],'');
     
     return_folder = cd(script_folder);
     NN = [];
