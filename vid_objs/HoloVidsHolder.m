@@ -140,8 +140,8 @@ classdef HoloVidsHolder < handle
                         file_path = regexprep(file_path, '\\', '/');
                     end
                     load(file_path, 'vid_obj_dummy');
-                    vid_obj_dummy.reload_saved_vid(new_vid_folder);
-                    vid_obj_dummy.set_parent_axes_obj(self.ax_obj_for_vid_disp);
+%                     vid_obj_dummy.reload_saved_vid(new_vid_folder);
+%                     vid_obj_dummy.set_parent_axes_obj(self.ax_obj_for_vid_disp);
                     self.add_holo_vid_obj_to_map(vid_obj_dummy);
                end
            end

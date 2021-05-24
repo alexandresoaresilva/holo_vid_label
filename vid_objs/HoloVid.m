@@ -82,6 +82,9 @@ classdef HoloVid < matlab.mixin.Copyable
             self.add_princip_fr_no();
         end
         
+        function ret = frame_imgs_have_been_cleared(self)
+           ret = self.fr_data_cleared;
+        end
         
         %         function set_parent_ax_obj(self, parent_ax_obj)
         %             self.parent_ax_obj = parent_ax_obj;
@@ -235,22 +238,28 @@ classdef HoloVid < matlab.mixin.Copyable
                     if isunix()
                         internal_vid_path = regexprep(internal_vid_path, '\\','/');
                     end
-                    self.store_fr_imgs_into_Frame_objs(internal_vid_path);
+                    success = self.store_fr_imgs_into_Frame_objs(internal_vid_path);
                 catch ME
                     external_vid_path = regexprep(external_vid_path,'\\+','\');
                     if isunix()
                         external_vid_path = regexprep(external_vid_path, '\\','/');
                     end
-                    self.store_fr_imgs_into_Frame_objs(external_vid_path);
+                    success = self.store_fr_imgs_into_Frame_objs(external_vid_path);
                 end
-                %                 if ~isempty(ME)
-                %                    errordlg(ME.message,ME.identifier);
-                %                 end
             end
-            self.fr_data_cleared = false;
+            if success
+                self.fr_data_cleared = false;
+            end
         end
-        function store_fr_imgs_into_Frame_objs(self, vid_file_path)
-            vid = VideoReader(vid_file_path);
+        function success = store_fr_imgs_into_Frame_objs(self, vid_file_path)
+            success = true;
+            try
+                vid = VideoReader(vid_file_path);
+            catch ME
+                success = false;
+                errordlg(['HoloVid class: reloading frames for previously saved ' self.vid_name ' failed.']); 
+                return
+            end
             i = 1;
             %             dummy_frames = Frame();
             while hasFrame(vid)
