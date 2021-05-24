@@ -178,19 +178,7 @@ classdef HoloVid < matlab.mixin.Copyable
             %                 self.apply_princ_bboxes_to_all_fr_above_cutoff();
             %             end
         end
-        function combine_bboxes_from_all_fr(self)
-            idx = [self.frames(:).is_principal];
-            princip_fr = [self.frames(idx)];
-            if ~isempty(princip_fr)
-                self.princip_bboxes = princip_fr(1).get_all_rect_bboxes();
-                for i=2:length(princip_fr)
-                    self.princip_bboxes = [self.princip_bboxes; princip_fr(i).get_all_rect_bboxes()];
-                end
-                %                 self.apply_princ_bboxes_to_all_fr_above_cutoff();
-                %                 self.bboxes_have_been_consolidated = true;
-                %                 self.update_axes_with_selected_frame();
-            end
-        end
+
         function ret = vid_has_at_least_one_bbox(self)
             idx = [self.frames(:).is_principal];
             princip_fr = [self.frames(idx)];
@@ -218,8 +206,9 @@ classdef HoloVid < matlab.mixin.Copyable
         end
         function set_parent_axes_obj(self, parent_axes_obj)
             self.parent_ax_obj = parent_axes_obj;
-            for i=1:length(self.frames)
-                self.frames(i).set_parent_ax_obj(parent_axes_obj);
+            for i=1:self.no_of_frames
+                fr = self.get_frame(i);
+                fr.set_parent_ax_obj(parent_axes_obj);
             end
         end
         

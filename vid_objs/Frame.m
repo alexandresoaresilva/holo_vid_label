@@ -163,6 +163,7 @@ classdef Frame < handle
                self.bboxes(i).delete(); 
             end
             self.bboxes = [];
+            self.is_principal = false;
         end
         function del_bbox(self)
             idx = self.get_selected_bbox_idx();

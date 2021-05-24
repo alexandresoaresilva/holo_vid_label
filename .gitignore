@@ -1591,3 +1591,5 @@ NN/detector.mat.html
 label_files/A2-10R1_bboxes.mat
 label_files/A2-10R2_bboxes.mat
 label_files/A2-10R6_bboxes.mat
+app_data/curr_vids_path.mat
+app_data/curr_vids_path.mat
