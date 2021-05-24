@@ -13,7 +13,7 @@ classdef Frame < handle
         I_orig
         I_min_max_255
         I_norm_0_to_1
-        bboxes_have_NOT_been_consolidated
+        last_deleted_bbox
     end
     methods(Access=public)
         function self = Frame(fr_no, I, ax_obj_parent, sqr_fr_side_sz)
@@ -27,8 +27,7 @@ classdef Frame < handle
             if nargin < 4
                 sqr_fr_side_sz = 1002;
             end
-            
-            self.bboxes_have_NOT_been_consolidated = true;
+            self.last_deleted_bbox = [];
             self.fr_number = fr_no;
             self.bboxes = [];
             %             self.bbox_labels = {};
@@ -94,6 +93,7 @@ classdef Frame < handle
                 I = self.I_orig;
             end
         end
+        
         %%%%%%%%% controlling bboxes
         function add_bbox_to_rect_array(self, bbox_rect)
             self.is_principal = true;
@@ -114,7 +114,9 @@ classdef Frame < handle
         end
         
         function bbox = get_last_added_bbox(self)
-            bbox = self.bboxes(end).copy();
+            if self.fr_has_at_least_one_bbox()
+                bbox = self.bboxes(end).copy();
+            end
         end
         
         function duplicate_selected_bbox(self)
@@ -149,18 +151,37 @@ classdef Frame < handle
                 self.bboxes = [];
             end
         end
+        function reload_last_deleted_bbox(self)
+            if ~isempty(self.last_deleted_bbox)
+                self.add_bbox_to_rect_array(self.last_deleted_bbox);
+                self.last_deleted_bbox = [];
+                self.bboxes(end).Parent = self.ax_obj_parent;
+            end
+        end
+        function del_all_bbox(self)
+            for i=1:length(self.bboxes)
+               self.bboxes(i).delete(); 
+            end
+            self.bboxes = [];
+        end
         function del_bbox(self)
             idx = self.get_selected_bbox_idx();
-            %  self.bbox_labels(idx) = [];
-            self.bboxes(idx).delete();
-            self.bboxes(idx) = [];
+            if ~isempty(idx)
+                self.last_deleted_bbox = self.bboxes(idx).copy;
+                self.last_deleted_bbox.Parent = [];
+                self.bboxes(idx).delete();
+                self.bboxes(idx) = [];
             
-            if isempty(self.bboxes)
-                self.is_principal = false;
+                if isempty(self.bboxes)
+                    self.is_principal = false;
+                end
             end
         end
         function bboxes = get_all_rect_bboxes(self)
-            bboxes = [self.bboxes(:).copy];
+            bboxes = [];
+            if self.fr_has_at_least_one_bbox()
+                bboxes = [self.bboxes(:).copy];
+            end
         end
     end
     methods(Access=private)

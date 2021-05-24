@@ -81,6 +81,8 @@ classdef HoloVid < matlab.mixin.Copyable
             end
             self.add_princip_fr_no();
         end
+        
+        
         %         function set_parent_ax_obj(self, parent_ax_obj)
         %             self.parent_ax_obj = parent_ax_obj;
         %         end
@@ -92,7 +94,22 @@ classdef HoloVid < matlab.mixin.Copyable
             %
             %             end
         end
+        function reload_last_deleted_bbox(self)
+            fr = self.get_frame();
+            fr.reload_last_deleted_bbox();
+        end
         
+        function delete_all_bboxes_in_selected_fr(self)
+            fr = self.get_frame();
+            fr.del_all_bbox();
+        end
+        
+        function delete_all_bboxes_in_video(self)
+            for i=1:self.no_of_frames
+                fr = self.get_frame(i);
+                fr.del_all_bbox();
+            end
+        end
         function change_bbox_color(self)
             fr = self.get_frame();
             fr.change_color_if_diff_from_def();
@@ -283,7 +300,6 @@ classdef HoloVid < matlab.mixin.Copyable
                 fr = self.get_frame(); %gets currently selected frame
                 fr.update_axes_with_frame(self.show_I_minmax);
                 
-                
                 if self.bboxes_have_just_been_added
                     self.bboxes_have_just_been_added = false;
                     % add bboxes to frames that follow here
@@ -296,8 +312,11 @@ classdef HoloVid < matlab.mixin.Copyable
             if self.selected_fr_no < self.no_of_frames
                 fr = self.get_frame();
                 all_bboxes_copy_fr = fr.get_all_rect_bboxes();
-                fr_subsequent = self.get_frame(self.selected_fr_no + 1);
-                fr_subsequent.replace_all_bboxes(all_bboxes_copy_fr);
+                
+                if ~isempty(all_bboxes_copy_fr)
+                    fr_subsequent = self.get_frame(self.selected_fr_no + 1);
+                    fr_subsequent.replace_all_bboxes(all_bboxes_copy_fr);
+                end
             end
         end
         

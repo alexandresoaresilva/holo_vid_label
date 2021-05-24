@@ -87,28 +87,36 @@ classdef HoloVidsHolder < handle
             end
         end
         
-        function save_one_vid_label(self, vid_name_no_ext)
+        function save_one_vid_label(self, vid_name_no_ext, app_path)
             if nargin < 2
                 vid_name_no_ext = self.last_vid_added;
+            end
+            if nargin < 3
+               app_path = ''; 
             end
             % if self.vid_is_in_map(vid_name_no_ext)
             vid_obj = self.vid_obj_map(vid_name_no_ext);
             vid_obj_dummy = vid_obj.copy();
             vid_obj_dummy.clear_frame_imgs_for_saving_labels();
             file_path = ['label_files\' vid_name_no_ext '_bboxes.mat'];
-
-            curr_dir = pwd;
-            curr_dir = regexprep(curr_dir, '(\\|/)holo_vid_label.*', '');
-            app_dir = [curr_dir '\holo_vid_label'];
+            
+            if isempty(app_path)
+                curr_dir = mfilename('fullpath');
+                curr_dir = regexprep(curr_dir, '(\\|/)holo_vid_label.*', '');
+                app_path = [curr_dir '\holo_vid_label'];
+            end
 
             if isunix()
                 file_path = regexprep(file_path, '\\', '/');
-                app_dir = regexprep(app_dir, '\\', '/');
+                app_path = regexprep(app_path, '\\', '/');
             end
-            cd(app_dir); %fixes behavior of not being able to save ifinside
+            cd(app_path); %fixes behavior of not being able to save ifinside
             %one of the app's internal folders
+            
+            if exist('label_files','dir') ~= 7
+               mkdir('label_files');
+            end
             save(file_path, 'vid_obj_dummy');
-            % end
         end
         
         function ret = vid_is_in_map(self, vid_name_no_ex)
