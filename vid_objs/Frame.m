@@ -111,6 +111,7 @@ classdef Frame < handle
         
         function replace_all_bboxes(self, new_bboxes)
             self.bboxes = new_bboxes;
+            self.is_principal = true;
         end
         
         function bbox = get_last_added_bbox(self)
