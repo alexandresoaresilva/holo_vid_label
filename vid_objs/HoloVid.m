@@ -232,20 +232,21 @@ classdef HoloVid < matlab.mixin.Copyable
             if self.fr_data_cleared
                 internal_vid_path = [self.vid_file_path '\' self.vid_name];
                 external_vid_path = [external_vid_path '\' self.vid_name];
-                ME = MException.empty();
-                try
-                    internal_vid_path = regexprep(internal_vid_path,'\\+','\');
-                    if isunix()
-                        internal_vid_path = regexprep(internal_vid_path, '\\','/');
-                    end
-                    success = self.store_fr_imgs_into_Frame_objs(internal_vid_path);
-                catch ME
+                
+                
+                internal_vid_path = regexprep(internal_vid_path,'\\+','\');
+                if isunix()
+                    internal_vid_path = regexprep(internal_vid_path, '\\','/');
+                end
+                success = self.store_fr_imgs_into_Frame_objs(internal_vid_path);
+                
+                if ~success
                     external_vid_path = regexprep(external_vid_path,'\\+','\');
                     if isunix()
                         external_vid_path = regexprep(external_vid_path, '\\','/');
                     end
-                    success = self.store_fr_imgs_into_Frame_objs(external_vid_path);
-                end
+                    success = self.store_fr_imgs_into_Frame_objs(external_vid_path); 
+                end                
             end
             if success
                 self.fr_data_cleared = false;
@@ -257,7 +258,7 @@ classdef HoloVid < matlab.mixin.Copyable
                 vid = VideoReader(vid_file_path);
             catch ME
                 success = false;
-                errordlg(['HoloVid class: reloading frames for previously saved ' self.vid_name ' failed.']); 
+%                 errordlg(['HoloVid class: reloading frames for previously saved ' self.vid_name ' failed.']); 
                 return
             end
             i = 1;

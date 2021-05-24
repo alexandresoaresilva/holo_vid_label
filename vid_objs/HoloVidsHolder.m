@@ -102,8 +102,11 @@ classdef HoloVidsHolder < handle
             
             if isempty(app_path)
                 curr_dir = mfilename('fullpath');
+                [idx_a, idx_b] = regexp(curr_dir, '(\\|/)holo_vid_label((-|_)?\w+)?(\\|/))?');
+                app_folder_name = curr_dir(idx_a+1:idx_b-1); %to avoid slashes
+%                 curr_dir = regexprep(curr_dir, '(\\|/)holo_vid_label.*', '');
                 curr_dir = regexprep(curr_dir, '(\\|/)holo_vid_label.*', '');
-                app_path = [curr_dir '\holo_vid_label'];
+                app_path = [curr_dir '\' app_folder_name];
             end
 
             if isunix()
@@ -148,4 +151,3 @@ classdef HoloVidsHolder < handle
         end
     end
 end
-
