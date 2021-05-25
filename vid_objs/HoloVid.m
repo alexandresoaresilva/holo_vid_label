@@ -133,9 +133,9 @@ classdef HoloVid < matlab.mixin.Copyable
             self.show_I_minmax = checkbox_value;
             self.update_axes_with_selected_frame()
         end
-        function next_fr(self, apply_bboxes_to_next_fr)
+        function next_fr(self, copy_bboxes_to_next_fr)
             
-            if apply_bboxes_to_next_fr
+            if copy_bboxes_to_next_fr
                 self.copy_bboxes_to_subsequent_frame();
             end
             self.clear_ax_obj_parent_for_bboxes();
@@ -146,7 +146,10 @@ classdef HoloVid < matlab.mixin.Copyable
             end
             self.update_axes_with_selected_frame()
         end
-        function prev_fr(self)
+        function prev_fr(self, copy_bboxes_to_prev_fr)
+            if copy_bboxes_to_prev_fr
+                self.copy_bboxes_to_previous_frame();
+            end
             self.clear_ax_obj_parent_for_bboxes();
             
             self.selected_fr_no = self.selected_fr_no - 1;
@@ -248,7 +251,7 @@ classdef HoloVid < matlab.mixin.Copyable
                     success = self.store_fr_imgs_into_Frame_objs(external_vid_path); 
                     
                     if success
-                       self.self.vid_file_path = external_vid_path;
+                       self.vid_file_path = external_vid_path;
                     end
                 end                
             end
@@ -306,7 +309,6 @@ classdef HoloVid < matlab.mixin.Copyable
                 if self.bboxes_have_just_been_added
                     self.bboxes_have_just_been_added = false;
                     % add bboxes to frames that follow here
-                    %                     self.apply_bboxes_to_all_fr_that_follow_above_cutoff();
                 end
             end
         end
@@ -323,14 +325,18 @@ classdef HoloVid < matlab.mixin.Copyable
             end
         end
         
-        function apply_bboxes_to_all_fr_that_follow_above_cutoff(self)
-            for i = self.selected_fr_no:self.cutoff_frame_no
-                fr_previous = self.get_frame(i-1);
-                all_bboxes_copy_prev_fr = fr_previous.get_all_rect_bboxes();
-                fr_that_follows = self.get_frame(i);
-                fr_that_follows.replace_all_bboxes(all_bboxes_copy_prev_fr);
+        function copy_bboxes_to_previous_frame(self)
+            if self.selected_fr_no > 1
+                fr = self.get_frame();
+                all_bboxes_copy_fr = fr.get_all_rect_bboxes();
+                
+                if ~isempty(all_bboxes_copy_fr)
+                    fr_subsequent = self.get_frame(self.selected_fr_no - 1);
+                    fr_subsequent.replace_all_bboxes(all_bboxes_copy_fr);
+                end
             end
         end
+        
         function fr = get_frame(self, fr_no)
             if nargin < 2
                 fr_no = self.selected_fr_no;

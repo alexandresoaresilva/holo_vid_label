@@ -1,4 +1,4 @@
-classdef HoloVidsHolder < handle
+classdef HoloVidsHolder < matlab.mixin.Copyable
     %BBOXESHOLDER
     % class has a map for which the keys are the holographic microscopy
     % video names and the values are HoloVid classes without data image in
