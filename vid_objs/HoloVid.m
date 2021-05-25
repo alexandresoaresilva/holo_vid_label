@@ -246,6 +246,10 @@ classdef HoloVid < matlab.mixin.Copyable
                         external_vid_path = regexprep(external_vid_path, '\\','/');
                     end
                     success = self.store_fr_imgs_into_Frame_objs(external_vid_path); 
+                    
+                    if success
+                       self.self.vid_file_path = external_vid_path;
+                    end
                 end                
             end
             if success
