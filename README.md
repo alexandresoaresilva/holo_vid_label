@@ -14,6 +14,6 @@ Warning: The app was not tested with videos larger than one hundred frames, sinc
 ## Running the Holo Video Labeler
 To load short videos, either:
   
-    1. Store the videos into the app's folder **_videos**
+    1. Store the videos into the app's folder **\_videos**
     OR
-    2. Select folder containing short videos using the **select video folder**.
+    2. Select folder containing short videos using the **select video folder** .
