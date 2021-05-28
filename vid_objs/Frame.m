@@ -12,8 +12,11 @@ classdef Frame < handle
         ax_obj_parent %axes
         I_orig
         I_min_max_255
+        I_stdized
+        I_min_max_over_vid
         I_norm_0_to_1
         last_deleted_bbox
+        imshow_obj
     end
     methods(Access=public)
         function self = Frame(fr_no, I, ax_obj_parent, sqr_fr_side_sz)
@@ -33,7 +36,7 @@ classdef Frame < handle
             %             self.bbox_labels = {};
             self.ax_obj_parent = ax_obj_parent;
             self.is_principal = false;
-            
+            self.imshow_obj = [];
             if ~isempty(fr_no)
                 self.store_I_into_Frame(I, sqr_fr_side_sz);
             end
@@ -45,6 +48,8 @@ classdef Frame < handle
             self.I_orig = [];
             self.I_min_max_255 = [];
             self.I_norm_0_to_1 = [];
+            self.I_min_max_over_vid = [];
+            self.I_stdized = [];
         end
         function store_I_into_Frame(self, I, sqr_fr_side_sz)
             if nargin < 3
@@ -53,21 +58,45 @@ classdef Frame < handle
             I = pad2sqr_n_resize(I, sqr_fr_side_sz);
             I_norm = min_max_norm(I);
             self.I_orig = I;
-            self.I_min_max_255 = uint8(I_norm*255);
+            self.I_min_max_255 = uint8(round(I_norm*255));
             self.I_norm_0_to_1 = I_norm;
+            self.I_stdized = uint8(min_max_norm(stdize_norm(self.I_orig),0,255));
+        end
+        
+        function set_I_vid_norm(self, I)
+           self.I_min_max_over_vid  = I;
         end
         function update_axes_with_frame(self, show_I_minmax_norm)
             if ~isempty(self.ax_obj_parent) &&  isvalid(self.ax_obj_parent)
                 
-                if show_I_minmax_norm
-                    I = self.I_min_max_255;
-                else
-                    I = self.I_orig;
+                if show_I_minmax_norm == 1
+                    if ~isempty(self.I_min_max_255)
+                        if isempty(self.imshow_obj) || ~isvalid(self.imshow_obj)
+                            self.imshow_obj = imshow(self.I_min_max_255, 'Parent', self.ax_obj_parent);
+                        else
+                            self.imshow_obj.CData = self.I_min_max_255;
+%                             self.imshow_obj.Parent = self.ax_obj_parent;
+                        end
+                    end
+                elseif show_I_minmax_norm == 0
+                    if ~isempty(self.I_orig)
+                        if isempty(self.imshow_obj) || ~isvalid(self.imshow_obj)
+                            self.imshow_obj = imshow(self.I_orig, 'Parent', self.ax_obj_parent);
+                        else
+                            self.imshow_obj.CData = self.I_orig;
+%                             self.imshow_obj.Parent = self.ax_obj_parent;
+                        end
+                    end
+                elseif show_I_minmax_norm == 3 %experimental
+                    if ~isempty(self.I_min_max_over_vid)
+                        if isempty(self.imshow_obj) || ~isvalid(self.imshow_obj)
+                            self.imshow_obj = imshow(self.I_min_max_over_vid, 'Parent', self.ax_obj_parent);
+                        else
+                            self.imshow_obj.CData = self.I_min_max_over_vid;
+%                             self.imshow_obj.Parent = self.ax_obj_parent;
+                        end
+                    end
                 end
-                if ~isempty(I)
-                    imshow(I, 'Parent', self.ax_obj_parent);
-                end
-                
             end
             self.load_stored_bboxes_into_fr_axes();
         end
@@ -87,7 +116,9 @@ classdef Frame < handle
                 get_I_minmax_norm = false;
             end
             
-            if get_I_minmax_norm
+            if ischar(get_I_minmax_norm) && strcmpi(get_I_minmax_norm, 'vid_norm')
+                I = self.I_min_max_over_vid;
+            elseif get_I_minmax_norm
                 I = self.I_min_max_255;
             else
                 I = self.I_orig;

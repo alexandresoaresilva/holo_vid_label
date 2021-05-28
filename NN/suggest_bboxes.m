@@ -1,6 +1,6 @@
 function [bbox, scores] = suggest_bboxes(I, ref_score)
     if nargin < 2
-        ref_score = 0.75;
+        ref_score = 0.55;
     end
     I_resized = imresize(I, [224 224]);
     persistent NN

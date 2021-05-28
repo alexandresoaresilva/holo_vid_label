@@ -13,6 +13,8 @@ classdef HoloVid < matlab.mixin.Copyable
         is_empty
     end
     properties(Access=private)
+        vid_norm_done
+        min_max_pix_vid
         bboxes_have_just_been_added
         framerate
         txt_xy
@@ -27,7 +29,7 @@ classdef HoloVid < matlab.mixin.Copyable
         fr_data_cleared
     end
     methods(Access=public)
-        function self = HoloVid(vid_path_n_name, parent_ax_obj, sqr_fr_side_sz)
+        function self = HoloVid(vid_path_n_name, parent_ax_obj, show_min_max_norm, sqr_fr_side_sz)
             if nargin < 1
                 vid_path_n_name = '';
             end
@@ -35,6 +37,9 @@ classdef HoloVid < matlab.mixin.Copyable
                 parent_ax_obj = [];
             end
             if nargin < 3
+               show_min_max_norm = false; 
+            end
+            if nargin < 4
                 sqr_fr_side_sz = 1002;
             end
             if isempty(vid_path_n_name)
@@ -52,12 +57,13 @@ classdef HoloVid < matlab.mixin.Copyable
                 self.vid_file_path = self.vid_file_path(1:end-1); %eliminates \
                 self.sqr_fr_side_sz = sqr_fr_side_sz;
                 self.parent_ax_obj = parent_ax_obj;
-                self.show_I_minmax = false;
+                self.show_I_minmax = show_min_max_norm;
                 self.load_vid(vid_path_n_name);
                 self.update_axes_with_selected_frame();
                 self.txt_xy = round(self.sqr_fr_side_sz/8);
                 self.frs_to_which_bboxes_have_been_applied = [];
                 self.fr_data_cleared = false;
+                self.vid_norm_done =false;
             end
         end
     end
@@ -75,9 +81,6 @@ classdef HoloVid < matlab.mixin.Copyable
             
             if self.selected_fr_no < self.cutoff_frame_no
                 self.bboxes_have_just_been_added = true;
-                %                 bbox_copy = fr.copy_last_added_bbox();
-                %                 fr_that_follows = self.get_frame(self.selected_fr_no+1);
-                %                 fr_that_follows.add_bbox_to_rect_array(bbox_copy);
             end
             self.add_princip_fr_no();
         end
@@ -85,17 +88,35 @@ classdef HoloVid < matlab.mixin.Copyable
         function ret = frame_imgs_have_been_cleared(self)
            ret = self.fr_data_cleared;
         end
-        
         %         function set_parent_ax_obj(self, parent_ax_obj)
         %             self.parent_ax_obj = parent_ax_obj;
         %         end
+        function norm_over_vid(self)
+            if ~self.vid_norm_done
+                for i=1:self.no_of_frames
+                    fr = self.get_frame(i);
+                    if i== 1
+                       [r,c] = size(fr.get_fr_img());
+                       all_fr_imgs = zeros(r, c, self.no_of_frames); 
+                    end
+                    all_fr_imgs(:,:,i) = fr.get_fr_img();
+                end
+%                 all_fr_imgs = stdize_norm(all_fr_imgs);
+                
+                all_fr_imgs = uint8(min_max_norm(all_fr_imgs,0,255));
+                
+                for i=1:self.no_of_frames
+                   fr = self.get_frame(i);
+                   fr.set_I_vid_norm(all_fr_imgs(:,:,i));
+                end
+                
+                self.vid_norm_done = true;
+            end
+        end
         
         function delete_selected_bbox(self)
             fr = self.get_frame();
             fr.del_bbox();
-            %             if isempty(fr.get_all_rect_bboxes())
-            %
-            %             end
         end
         function reload_last_deleted_bbox(self)
             fr = self.get_frame();
@@ -168,7 +189,7 @@ classdef HoloVid < matlab.mixin.Copyable
                 self.selected_fr_no = 1;
             end
             
-            self.get_frame();
+%             self.get_frame();
             self.update_axes_with_selected_frame();
         end
         function set_cutoff_fr(self, new_cutoff)
@@ -268,16 +289,21 @@ classdef HoloVid < matlab.mixin.Copyable
 %                 errordlg(['HoloVid class: reloading frames for previously saved ' self.vid_name ' failed.']); 
                 return
             end
-            i = 1;
-            %             dummy_frames = Frame();
-            while hasFrame(vid)
+%             i = 1;
+            % dummy_frames = Frame();
+%             while hasFrame(vid)
+            for i=1:self.no_of_frames
                 I = readFrame(vid);
                 if i > self.no_of_frames
                     break;
                 end
                 fr = self.get_frame(i);
                 fr.store_I_into_Frame(I);
-                i = i + 1;
+                if i==1
+                    self.curr_select_fr = self.frames(self.selected_fr_no);
+                    self.update_axes_with_selected_frame();
+                end
+%                 i = i + 1;
             end
         end
     end
@@ -285,21 +311,24 @@ classdef HoloVid < matlab.mixin.Copyable
     methods(Access=private)
         function load_vid(self, vid_file_path)
             vid = VideoReader(vid_file_path);
-            i = 1;
-            dummy_frames = Frame();
-            while hasFrame(vid)
-                I = readFrame(vid);
-                dummy_frames(i) = Frame(i, I, self.parent_ax_obj, self.sqr_fr_side_sz);
-                i = i + 1;
-            end
+            
             self.framerate = vid.FrameRate;
-            self.frames = dummy_frames;
+            self.frames = Frame();
             self.selected_fr_no = 1;
-            self.curr_select_fr = self.frames(self.selected_fr_no);
-            self.no_of_frames = length(self.frames);
             self.cutoff_frame_no = round(self.no_of_frames/2);
             self.princ_frames = [];
             self.deriv_frames = 1:self.no_of_frames;
+            self.no_of_frames = vid.NumFrames;
+            
+            for i=1:self.no_of_frames
+                self.frames(i) = Frame(i, readFrame(vid), self.parent_ax_obj, self.sqr_fr_side_sz);
+                if i==10 %updates axes with new video
+                    self.curr_select_fr = self.frames(1);
+                    self.update_axes_with_selected_frame();
+                    pause(0.001);
+                end
+            end
+            
         end
         function update_axes_with_selected_frame(self)
             if ~isempty(self.parent_ax_obj)
