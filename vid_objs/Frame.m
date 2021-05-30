@@ -9,6 +9,7 @@ classdef Frame < handle
         orig_bboxes
         bbox_matrix %nx4 [x, y, w, h]
         bbox_labels
+        last_selected_bbox_idx
         ax_obj_parent %axes
         I_orig
         I_min_max_255
@@ -53,7 +54,7 @@ classdef Frame < handle
         end
         function store_I_into_Frame(self, I, sqr_fr_side_sz)
             if nargin < 3
-               sqr_fr_side_sz = 1002; 
+                sqr_fr_side_sz = 1002;
             end
             I = pad2sqr_n_resize(I, sqr_fr_side_sz);
             I_norm = min_max_norm(I);
@@ -64,7 +65,7 @@ classdef Frame < handle
         end
         
         function set_I_vid_norm(self, I)
-           self.I_min_max_over_vid  = I;
+            self.I_min_max_over_vid  = I;
         end
         function update_axes_with_frame(self, show_I_minmax_norm)
             if ~isempty(self.ax_obj_parent) &&  isvalid(self.ax_obj_parent)
@@ -75,7 +76,7 @@ classdef Frame < handle
                             self.imshow_obj = imshow(self.I_min_max_255, 'Parent', self.ax_obj_parent);
                         else
                             self.imshow_obj.CData = self.I_min_max_255;
-%                             self.imshow_obj.Parent = self.ax_obj_parent;
+                            %                             self.imshow_obj.Parent = self.ax_obj_parent;
                         end
                     end
                 elseif show_I_minmax_norm == 0
@@ -84,7 +85,7 @@ classdef Frame < handle
                             self.imshow_obj = imshow(self.I_orig, 'Parent', self.ax_obj_parent);
                         else
                             self.imshow_obj.CData = self.I_orig;
-%                             self.imshow_obj.Parent = self.ax_obj_parent;
+                            %                             self.imshow_obj.Parent = self.ax_obj_parent;
                         end
                     end
                 elseif show_I_minmax_norm == 3 %experimental
@@ -93,7 +94,7 @@ classdef Frame < handle
                             self.imshow_obj = imshow(self.I_min_max_over_vid, 'Parent', self.ax_obj_parent);
                         else
                             self.imshow_obj.CData = self.I_min_max_over_vid;
-%                             self.imshow_obj.Parent = self.ax_obj_parent;
+                            %                             self.imshow_obj.Parent = self.ax_obj_parent;
                         end
                     end
                 end
@@ -137,7 +138,7 @@ classdef Frame < handle
                 end
             end
             self.unselect_current_bboxes();
-            self.bboxes(end).Selected = true;
+            %             self.bboxes(end).Selected = true;
         end
         
         function replace_all_bboxes(self, new_bboxes)
@@ -154,6 +155,7 @@ classdef Frame < handle
         function duplicate_selected_bbox(self)
             if self.fr_has_at_least_one_bbox()
                 idx = self.get_selected_bbox_idx();
+                self.bboxes(idx).Selected =  false;
                 bbox_copy = self.bboxes(idx).copy;
                 bbox_copy = self.change_color_if_diff_from_def(bbox_copy);
                 bbox_copy.Parent = self.ax_obj_parent;
@@ -163,10 +165,12 @@ classdef Frame < handle
         
         function bbox = change_color_if_diff_from_def(self, bbox)
             if nargin < 2
-               idx = self.get_selected_bbox_idx();
-               bbox = self.bboxes(idx);
+                idx = self.get_selected_bbox_idx();
+                bbox = self.bboxes(idx);
             end
-            bbox.StripeColor = bbox.Color;
+            if sum(bbox.StripeColor == bbox.Color) ~= 3
+                bbox.StripeColor = bbox.Color;
+            end
         end
         function store_princip_bboxes_n_clear_bbox_array(self)
             if self.fr_has_at_least_one_bbox
@@ -185,26 +189,37 @@ classdef Frame < handle
         end
         function reload_last_deleted_bbox(self)
             if ~isempty(self.last_deleted_bbox)
-                self.add_bbox_to_rect_array(self.last_deleted_bbox);
-                self.last_deleted_bbox = [];
+                self.add_bbox_to_rect_array(self.last_deleted_bbox(end));
+                self.last_deleted_bbox(end) = [];
                 self.bboxes(end).Parent = self.ax_obj_parent;
             end
         end
         function del_all_bbox(self)
             for i=1:length(self.bboxes)
-               self.bboxes(i).delete(); 
+                self.bboxes(i).delete();
             end
             self.bboxes = [];
             self.is_principal = false;
         end
         function del_bbox(self)
             idx = self.get_selected_bbox_idx();
+            if isempty(idx)
+                if self.last_selected_bbox_idx <= length(self.bboxes)
+                    idx = self.last_selected_bbox_idx;
+                end
+            end
+            
             if ~isempty(idx)
-                self.last_deleted_bbox = self.bboxes(idx).copy;
-                self.last_deleted_bbox.Parent = [];
+                if isempty(self.last_deleted_bbox)
+                    self.last_deleted_bbox = self.bboxes(idx).copy;
+                else
+                    self.last_deleted_bbox(end+1,1) = self.bboxes(idx).copy;
+                end
+                self.last_deleted_bbox(end).Parent = [];
+                self.last_deleted_bbox(end).Selected = false;
                 self.bboxes(idx).delete();
                 self.bboxes(idx) = [];
-            
+                
                 if isempty(self.bboxes)
                     self.is_principal = false;
                 end
@@ -230,10 +245,18 @@ classdef Frame < handle
                 idx = [self.bboxes(:).Selected];
             end
             idx = find(idx,1);
+            if ~isempty(idx)
+                self.last_selected_bbox_idx = idx;
+                self.bboxes(idx).Selected = false;
+            end
         end
         function unselect_current_bboxes(self)
             for i=1:length(self.bboxes)
                 self.bboxes(i).Selected = false;
+                % if i == length(self.bboxes)
+                % self.bboxes(i).Selected = true;
+                % end
+                addlistener(self.bboxes(i), 'ROIMoved', @(x,y)detect_bbox_moving(self));
             end
         end
         function load_stored_bboxes_into_fr_axes(self)
@@ -246,6 +269,10 @@ classdef Frame < handle
                     end
                 end
             end
+        end
+        
+        function detect_bbox_moving(self)
+            self.change_color_if_diff_from_def();
         end
     end
 end
