@@ -155,6 +155,9 @@ classdef Frame < handle
         function duplicate_selected_bbox(self)
             if self.fr_has_at_least_one_bbox()
                 idx = self.get_selected_bbox_idx();
+                if isempty(idx)
+                   idx = self.last_selected_bbox_idx;
+                end
                 self.bboxes(idx).Selected =  false;
                 bbox_copy = self.bboxes(idx).copy;
                 bbox_copy = self.change_color_if_diff_from_def(bbox_copy);
