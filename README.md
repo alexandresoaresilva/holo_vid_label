@@ -12,6 +12,9 @@ It allows for the placement of bounding boxes around objects of interest in fram
 Warning: The app was not tested with videos larger than one hundred frames, since it was created for videos that are 31 frames long, representing the z-stack of a hologram.
 
 ## running the holo video labeler
+
+### Always start the app using the holo_vid_labeler.m script.
+
 To load short videos, either:
 
 1. Store the videos into the app's folder **\_videos**
