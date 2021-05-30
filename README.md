@@ -19,4 +19,4 @@ To load short videos, either:
 
 1. Store the videos into the app's folder **\_videos**
     OR
-2. Select folder containing short videos using the **select video (s)** .
+2. Select videos from a folder using the **select video (s)** button.
