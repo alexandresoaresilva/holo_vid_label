@@ -79,9 +79,8 @@ classdef HoloVid < matlab.mixin.Copyable
             fr = self.get_frame();
             fr.add_bbox_to_rect_array(bbox);
             
-            if self.selected_fr_no < self.cutoff_frame_no
-                self.bboxes_have_just_been_added = true;
-            end
+            
+            self.bboxes_have_just_been_added = true;
             self.add_princip_fr_no();
         end
         
