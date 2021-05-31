@@ -252,10 +252,10 @@ classdef HoloVid < matlab.mixin.Copyable
             self.fr_data_cleared = true;
             self.parent_ax_obj = [];
         end
-        function reload_saved_vid(self, external_vid_path)
+        function reload_saved_vid(self, external_vid_path_in)
             if self.fr_data_cleared
                 internal_vid_path = [self.vid_file_path '\' self.vid_name];
-                external_vid_path = [external_vid_path '\' self.vid_name];
+                external_vid_path = [external_vid_path_in '\' self.vid_name];
                 
                 
                 internal_vid_path = regexprep(internal_vid_path,'\\+','\');
@@ -272,7 +272,7 @@ classdef HoloVid < matlab.mixin.Copyable
                     success = self.store_fr_imgs_into_Frame_objs(external_vid_path); 
                     
                     if success
-                       self.vid_file_path = external_vid_path;
+                       self.vid_file_path = external_vid_path_in;
                     end
                 end                
             end
@@ -289,9 +289,7 @@ classdef HoloVid < matlab.mixin.Copyable
 %                 errordlg(['HoloVid class: reloading frames for previously saved ' self.vid_name ' failed.']); 
                 return
             end
-%             i = 1;
-            % dummy_frames = Frame();
-%             while hasFrame(vid)
+
             for i=1:self.no_of_frames
                 I = readFrame(vid);
                 if i > self.no_of_frames
@@ -299,12 +297,9 @@ classdef HoloVid < matlab.mixin.Copyable
                 end
                 fr = self.get_frame(i);
                 fr.store_I_into_Frame(I);
-                if i==1
-                    self.curr_select_fr = self.frames(self.selected_fr_no);
-                    self.update_axes_with_selected_frame();
-                end
-%                 i = i + 1;
             end
+            self.curr_select_fr = self.frames(self.selected_fr_no);
+            self.update_axes_with_selected_frame();
         end
     end
     

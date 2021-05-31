@@ -50,6 +50,7 @@ classdef HoloVidsHolder < matlab.mixin.Copyable
         function ret = vid_files_path_is_NOT_set(self)
             ret = isempty(self.vid_files_path);
         end
+        
         function set_vid_files_path(self, vid_files_path)
             self.vid_files_path = vid_files_path;
             self.find_n_reload_labels();
@@ -82,8 +83,8 @@ classdef HoloVidsHolder < matlab.mixin.Copyable
             if self.vid_is_in_map(vid_name_no_ext)
                 vid_obj = self.vid_obj_map(vid_name_no_ext);
                 if vid_obj.frame_imgs_have_been_cleared()
+                    vid_obj.set_parent_axes_obj(self.ax_obj_for_vid_disp); %shows image
                     vid_obj.reload_saved_vid(self.vid_files_path);
-                    vid_obj.set_parent_axes_obj(self.ax_obj_for_vid_disp);
                 end
             end
         end

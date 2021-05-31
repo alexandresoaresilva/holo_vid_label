@@ -67,35 +67,24 @@ classdef Frame < handle
         function set_I_vid_norm(self, I)
             self.I_min_max_over_vid  = I;
         end
+        
+        function show_img_in_ax(self, I)
+            self.imshow_obj = imshow(I, 'Parent', self.ax_obj_parent);
+        end
         function update_axes_with_frame(self, show_I_minmax_norm)
             if ~isempty(self.ax_obj_parent) &&  isvalid(self.ax_obj_parent)
                 
                 if show_I_minmax_norm == 1
                     if ~isempty(self.I_min_max_255)
-                        if isempty(self.imshow_obj) || ~isvalid(self.imshow_obj)
-                            self.imshow_obj = imshow(self.I_min_max_255, 'Parent', self.ax_obj_parent);
-                        else
-                            self.imshow_obj.CData = self.I_min_max_255;
-                            %                             self.imshow_obj.Parent = self.ax_obj_parent;
-                        end
+                        self.show_img_in_ax(self.I_min_max_255);
                     end
                 elseif show_I_minmax_norm == 0
                     if ~isempty(self.I_orig)
-                        if isempty(self.imshow_obj) || ~isvalid(self.imshow_obj)
-                            self.imshow_obj = imshow(self.I_orig, 'Parent', self.ax_obj_parent);
-                        else
-                            self.imshow_obj.CData = self.I_orig;
-                            %                             self.imshow_obj.Parent = self.ax_obj_parent;
-                        end
+                        self.show_img_in_ax(self.I_orig);
                     end
                 elseif show_I_minmax_norm == 3 %experimental
                     if ~isempty(self.I_min_max_over_vid)
-                        if isempty(self.imshow_obj) || ~isvalid(self.imshow_obj)
-                            self.imshow_obj = imshow(self.I_min_max_over_vid, 'Parent', self.ax_obj_parent);
-                        else
-                            self.imshow_obj.CData = self.I_min_max_over_vid;
-                            %                             self.imshow_obj.Parent = self.ax_obj_parent;
-                        end
+                        self.show_img_in_ax(self.I_min_max_over_vid);
                     end
                 end
             end
@@ -158,11 +147,13 @@ classdef Frame < handle
                 if isempty(idx)
                    idx = self.last_selected_bbox_idx;
                 end
-                self.bboxes(idx).Selected =  false;
-                bbox_copy = self.bboxes(idx).copy;
-                bbox_copy = self.change_color_if_diff_from_def(bbox_copy);
-                bbox_copy.Parent = self.ax_obj_parent;
-                self.add_bbox_to_rect_array(bbox_copy);
+                if ~isempty(idx)
+                    self.bboxes(idx).Selected =  false;
+                    bbox_copy = self.bboxes(idx).copy;
+                    bbox_copy = self.change_color_if_diff_from_def(bbox_copy);
+                    bbox_copy.Parent = self.ax_obj_parent;
+                    self.add_bbox_to_rect_array(bbox_copy);
+                end
             end
         end
         
@@ -171,8 +162,12 @@ classdef Frame < handle
                 idx = self.get_selected_bbox_idx();
                 bbox = self.bboxes(idx);
             end
-            if sum(bbox.StripeColor == bbox.Color) ~= 3
-                bbox.StripeColor = bbox.Color;
+            
+            bbox_stripe_color = bbox.get('StripeColor');
+            bbox_color = bbox.get('Color');
+            if bbox_stripe_color(1) ~= bbox_color(1) %tests if pure blue
+                bbox.set('StripeColor', bbox_color);
+                pause(0.001);
             end
         end
         function store_princip_bboxes_n_clear_bbox_array(self)
@@ -256,15 +251,13 @@ classdef Frame < handle
         function unselect_current_bboxes(self)
             for i=1:length(self.bboxes)
                 self.bboxes(i).Selected = false;
-                % if i == length(self.bboxes)
-                % self.bboxes(i).Selected = true;
-                % end
-                addlistener(self.bboxes(i), 'ROIMoved', @(x,y)detect_bbox_moving(self));
+                
+%                 addlistener(self.bboxes(i), 'ROIMoved', @(x,y)change_color_if_diff_from_def(self));
             end
         end
         function load_stored_bboxes_into_fr_axes(self)
             if isempty(self.ax_obj_parent) || ~isvalid(self.ax_obj_parent)
-                errordlg('Frame::load_stored_bboxes_into_fr_axes: parent axes obj is needed for this operation');
+                errordlg('Frame:load_stored_bboxes_into_fr_axes: parent axes obj is needed for this operation');
             else
                 if self.fr_has_at_least_one_bbox()
                     for i=1:length(self.bboxes)
@@ -272,10 +265,6 @@ classdef Frame < handle
                     end
                 end
             end
-        end
-        
-        function detect_bbox_moving(self)
-            self.change_color_if_diff_from_def();
         end
     end
 end
