@@ -20,3 +20,5 @@ To load short videos, either:
 1. Store the videos into the app's folder **\_videos**
     OR
 2. Select videos from a folder using the **select video (s)** button.
+
+Bounding boxes are saved into the folder **label_files** as .mat files. They represent HoloVid objects without the frame images stored.
