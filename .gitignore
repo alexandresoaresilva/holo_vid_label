@@ -2,3 +2,4 @@ NN/detector.mat
 NN/detector.mat.html
 app_data/curr_vids_path.mat
 pathdef.m
+label_files/
