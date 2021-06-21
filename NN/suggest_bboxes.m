@@ -29,7 +29,7 @@ function NN = download_detect_file_if_not_present()
         NN_path = [];
         f = msgbox('Attempting to downloading detector from Dropbox server');
         try
-            NN_path = websave('detector.mat', 'https://www.dropbox.com/s/de8qq1vtpysaiu2/detector.mat?dl=1');
+            NN_path = websave('detector.mat', 'https://www.dropbox.com/s/5ygxdjwzu6v7gmn/detector.mat?dl=1');
         catch ME
             errodlg('Holo Video Labeler: NN file not found on Dropbox. suggest bboxes button is not going to work');
         end
