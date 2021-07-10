@@ -1,15 +1,19 @@
 function [bbox, scores] = suggest_bboxes(I, ref_score)
     if nargin < 2
-        ref_score = 0.55;
+        ref_score = 0.5;
     end
-    I_resized = imresize(I, [224 224]);
+    
+    
     persistent NN
     if isempty(NN)
         NN = download_detect_file_if_not_present();
     end
+    input_size = NN.Network.Layers(1).InputSize(1:2);
+    I_resized = imresize(I, input_size);
+    
     [bboxes, scores] = detect(NN, I_resized);
     idx = scores > ref_score;
-    bbox = preprocess_bbox(bboxes(idx,:), I);
+    bbox = preprocess_bbox(bboxes(idx,:), I, input_size);
     scores = scores(idx);
 end
 

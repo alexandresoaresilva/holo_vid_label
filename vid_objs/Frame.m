@@ -126,8 +126,6 @@ classdef Frame < handle
                     self.bboxes(end+1,1) = bbox_rect(i);
                 end
             end
-            self.unselect_current_bboxes();
-            %             self.bboxes(end).Selected = true;
         end
         
         function replace_all_bboxes(self, new_bboxes)
@@ -238,23 +236,34 @@ classdef Frame < handle
             ret = isempty(self.bboxes);
         end
         function idx = get_selected_bbox_idx(self)
+            pts = self.ax_obj_parent.CurrentPoint;
+            
             idx = [];
             if self.fr_has_at_least_one_bbox()
                 idx = [self.bboxes(:).Selected];
             end
-            idx = find(idx,1);
-            if ~isempty(idx)
-                self.last_selected_bbox_idx = idx;
-                self.bboxes(idx).Selected = false;
-            end
-        end
-        function unselect_current_bboxes(self)
-            for i=1:length(self.bboxes)
-                self.bboxes(i).Selected = false;
+            idx = find(idx);
+            
+            if isempty(idx)
+                idx = length(self.bboxes); %selects last
+            else
                 
-%                 addlistener(self.bboxes(i), 'ROIMoved', @(x,y)change_color_if_diff_from_def(self));
+
+                for i=idx
+                    r = self.bboxes(i);
+                    if r.inROI(pts(1,1),pts(1,2))
+                       idx = i;
+                       break;
+                    end
+                end
+
+                if length(idx) > 1
+                    idx = idx(1);
+                end
             end
+            self.last_selected_bbox_idx = idx;
         end
+
         function load_stored_bboxes_into_fr_axes(self)
             if isempty(self.ax_obj_parent) || ~isvalid(self.ax_obj_parent)
                 errordlg('Frame:load_stored_bboxes_into_fr_axes: parent axes obj is needed for this operation');

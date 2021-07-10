@@ -133,6 +133,14 @@ classdef HoloVid < matlab.mixin.Copyable
                 fr.del_all_bbox();
             end
         end
+        function delete_all_bboxes_in_and_after_sel_fr(self)
+            fr = self.get_frame();
+            
+            for i=fr.fr_number:self.no_of_frames
+                fr = self.get_frame(i);
+                fr.del_all_bbox();
+            end
+        end
         function change_bbox_color(self)
             fr = self.get_frame();
             fr.change_color_if_diff_from_def();

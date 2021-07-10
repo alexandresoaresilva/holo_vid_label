@@ -1,7 +1,11 @@
-function bbox = preprocess_bbox(bbox, I)
+function bbox = preprocess_bbox(bbox, I, sz)
+    
+    if nargin < 3
+       sz = [224 224]; 
+    end
     % Resize image and bounding boxes to targetSize.
     target_size = size(I,[1 2]);
-    sz = [224 224];
+    
     scale = target_size(1:2)./sz;
     
     % Resize boxes.
