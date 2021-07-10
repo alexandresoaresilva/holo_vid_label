@@ -32,17 +32,17 @@ classdef DetectorList < handle
             if self.detector_found
                 self.detectors_in_dir = {d(idx).name};
                 self.sel_detect_file = self.detectors_in_dir{1};
+            else
+                f = msgbox({'Download a detector (detector_xxx.mat file) from the Dropbox link copied to your clipboard.';...
+                            'After downloading detector.mat, move the file to the following directory:';...
+                            ' ';self.current_workdir},'warn');
+                clipboard('copy','https://www.dropbox.com/sh/qb6yfa4171p5wz6/AACyMB7aMOP5-hMFObts8yB0a?dl=0');
             end
         end
         function find_n_load_detectors(self)
             self.find_detectors();
             if ~self.detector_loaded
                 self.load_detector();
-            else
-                f = msgbox({'Download a detector (detector_xxx.mat file) from the Dropbox link copied to your clipboard.';...
-                            'After downloading detector.mat, move the file to the following directory:';...
-                            ' ';self.current_workdir},'warn');
-                clipboard('copy','https://www.dropbox.com/sh/qb6yfa4171p5wz6/AACyMB7aMOP5-hMFObts8yB0a?dl=0');
             end
         end
         
