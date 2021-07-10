@@ -50,8 +50,14 @@ classdef DetectorList < handle
             if nargin < 2
                sel_detect_file = self.sel_detect_file;
             end
-            if exist([self.current_workdir '\' sel_detect_file],'file')
-                d = matfile([self.current_workdir '\' sel_detect_file]);
+            
+            if isunix()
+                file_path= [self.current_workdir '/' sel_detect_file];
+            else
+                file_path= [self.current_workdir '\' sel_detect_file];
+            end
+            if exist(file_path,'file')
+                d = matfile(file_path);
                 if isprop(d,'detector')
                     self.sel_detect_file = sel_detect_file;
                     self.NN = d.detector;
