@@ -124,6 +124,9 @@ classdef Frame < handle
         %%%%%%%%% controlling bboxes
         function add_bbox_to_rect_array(self, bbox_rect)
             self.is_principal = true;
+            if isempty(self.min_bbox_side_sz) %for classes that didn't have this property
+                self.min_bbox_side_sz = 50;
+            end
             not_valid = all(bbox_rect.Position(3:4) <= self.min_bbox_side_sz); % feature is guaranteed to not be smaller than this
             if not_valid
                 delete(bbox_rect);
@@ -139,7 +142,9 @@ classdef Frame < handle
             end
         end
         function rem_invalid_bboxes(self)
-            
+            if isempty(self.min_bbox_side_sz) %for classes that didn't have this property
+                self.min_bbox_side_sz = 50;
+            end
             for i=1:length(self.bboxes)
                 r = self.bboxes(i);
                 not_valid = all(r.Position(3:4) <= self.min_bbox_side_sz);
