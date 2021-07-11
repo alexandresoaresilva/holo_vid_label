@@ -18,9 +18,10 @@ classdef Frame < handle
         I_norm_0_to_1
         last_deleted_bbox
         imshow_obj
+        min_bbox_side_sz
     end
     methods(Access=public)
-        function self = Frame(fr_no, I, ax_obj_parent, sqr_fr_side_sz)
+        function self = Frame(fr_no, I, ax_obj_parent, sqr_fr_side_sz, min_bbox_side_sz)
             if nargin < 2
                 fr_no = [];
                 I = [];
@@ -31,6 +32,11 @@ classdef Frame < handle
             if nargin < 4
                 sqr_fr_side_sz = 1002;
             end
+            
+            if nargin < 5
+               min_bbox_side_sz = 50; 
+            end
+            self.min_bbox_side_sz = min_bbox_side_sz;
             self.last_deleted_bbox = [];
             self.fr_number = fr_no;
             self.bboxes = [];
@@ -118,16 +124,34 @@ classdef Frame < handle
         %%%%%%%%% controlling bboxes
         function add_bbox_to_rect_array(self, bbox_rect)
             self.is_principal = true;
-            
-            if self.fr_has_NO_bboxes()
-                self.bboxes = bbox_rect;
+            not_valid = all(bbox_rect.Position(3:4) <= self.min_bbox_side_sz); % feature is guaranteed to not be smaller than this
+            if not_valid
+                delete(bbox_rect);
+                clear bbox_rect;
             else
-                for i=1:length(bbox_rect)
-                    self.bboxes(end+1,1) = bbox_rect(i);
+                if self.fr_has_NO_bboxes()
+                    self.bboxes = bbox_rect;
+                else
+                    for i=1:length(bbox_rect)
+                        self.bboxes(end+1,1) = bbox_rect(i);
+                    end
                 end
             end
         end
-        
+        function rem_invalid_bboxes(self)
+            
+            for i=1:length(self.bboxes)
+                r = self.bboxes(i);
+                not_valid = all(r.Position(3:4) <= self.min_bbox_side_sz);
+                if not_valid
+                    self.bboxes(i).delete();
+                    self.bboxes(i) = [];
+                end
+            end
+            if isempty(self.bboxes)
+                self.is_principal = false;
+            end
+        end
         function replace_all_bboxes(self, new_bboxes)
             self.bboxes = new_bboxes;
             self.is_principal = true;
