@@ -1,5 +1,5 @@
 classdef Frame < handle
-    %each frame of the holographic micros is an instance of this class
+    %each frame of the frames of the holo videos is an instance of this class
     properties(Access=public)
         fr_number
         is_principal
@@ -7,7 +7,7 @@ classdef Frame < handle
     properties(Access=private)
         bboxes %Rectangle array
         orig_bboxes
-        bbox_matrix %nx4 [x, y, w, h]
+        bbox_matrix %nx4 [x_bottom_corner, y_bottom_corner, w, h]
         bbox_labels
         last_selected_bbox_idx
         ax_obj_parent %axes

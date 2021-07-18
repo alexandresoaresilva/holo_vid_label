@@ -57,10 +57,12 @@ classdef DetectorList < handle
                 file_path= [self.current_workdir '\' sel_detect_file];
             end
             if exist(file_path,'file')
-                d = matfile(file_path);
-                if isprop(d,'detector')
+                mat_file_obj_prop = matfile(file_path);
+                obj_prop = cell(properties(mat_file_obj_prop));
+                idx = contains(obj_prop, 'detector');
+                if any(idx)
                     self.sel_detect_file = sel_detect_file;
-                    self.NN = d.detector;
+                    self.NN = mat_file_obj_prop.(obj_prop{idx});
                     self.detector_loaded = true;
                 end
             end
