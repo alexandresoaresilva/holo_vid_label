@@ -111,15 +111,17 @@ classdef HoloVidsHolder < matlab.mixin.Copyable
             vid_obj = self.vid_obj_map(vid_name_no_ext);
             vid_obj_dummy = vid_obj.copy();
             vid_obj_dummy.clear_frame_imgs_for_saving_labels();
-            file_path = ['label_files\' vid_name_no_ext '_bboxes.mat'];
+            folder_path = [self.vid_files_path '\label_files'];
+            file_path = [folder_path '\' vid_name_no_ext '_bboxes.mat'];
             
             if isunix()
-                file_path = regexprep(file_path, '\\', '/');
+                folder_path = regexprep(folder_path, '\\+', '/');
+                file_path = [folder_path '/' vid_name_no_ext '_bboxes.mat'];
             end
-            cd(self.app_path); %fixes behavior of not being able to save
+%             cd(self.app_path); %fixes behavior of not being able to save
             
-            if exist('label_files','dir') ~= 7
-                mkdir('label_files');
+            if exist(folder_path,'dir') ~= 7
+                mkdir(folder_path);
             end
             save(file_path, 'vid_obj_dummy');
         end
