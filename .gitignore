@@ -4,3 +4,4 @@ app_data/curr_vids_path.mat
 pathdef.m
 label_files/
 NN/detector_mobnetv2.mat
+NN/detector.*
