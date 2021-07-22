@@ -19,6 +19,7 @@ classdef Frame < handle
         last_deleted_bbox
         imshow_obj
         min_bbox_side_sz
+        bbox_double_click
     end
     methods(Access=public)
         function self = Frame(fr_no, I, ax_obj_parent, sqr_fr_side_sz, min_bbox_side_sz)
@@ -36,6 +37,7 @@ classdef Frame < handle
             if nargin < 5
                min_bbox_side_sz = 50; 
             end
+            self.bbox_double_click = 1;
             self.min_bbox_side_sz = min_bbox_side_sz;
             self.last_deleted_bbox = [];
             self.fr_number = fr_no;
@@ -132,6 +134,9 @@ classdef Frame < handle
                 delete(bbox_rect);
                 clear bbox_rect;
             else
+                bbox_rect.SelectedColor = 'b';
+                
+%                 addlistener(bbox_rect,'ROIClicked', @(src, evt)select_unselect_bboxes(self));
                 if self.fr_has_NO_bboxes()
                     self.bboxes = bbox_rect;
                 else
@@ -256,6 +261,14 @@ classdef Frame < handle
                 bboxes = [self.bboxes(:).copy];
             end
         end
+        function bboxes_matrix = get_all_bboxes_as_matrix(self)
+            bbox_rect = self.get_all_rect_bboxes();
+            L = length(bbox_rect);
+            bboxes_matrix = zeros(L,4);
+            for i=1:L
+                bboxes_matrix(i,:) = bbox_rect(i).Position;
+            end
+        end
     end
     methods(Access=private)
         function ret = fr_has_at_least_one_bbox(self)
@@ -275,22 +288,27 @@ classdef Frame < handle
             
             if isempty(idx)
                 idx = length(self.bboxes); %selects last
+                if idx == 0
+                   idx = []; 
+                end
             else
-                
-
                 for i=idx
                     r = self.bboxes(i);
                     if r.inROI(pts(1,1),pts(1,2))
+                       r.bringToFront();
                        idx = i;
                        break;
                     end
+                    self.bboxes(i).Selected = false;
                 end
 
                 if length(idx) > 1
                     idx = idx(1);
                 end
             end
-            self.last_selected_bbox_idx = idx;
+            if ~isempty(idx)
+                self.last_selected_bbox_idx = idx;
+            end
         end
 
         function load_stored_bboxes_into_fr_axes(self)
@@ -304,6 +322,16 @@ classdef Frame < handle
                 end
             end
         end
+        
+%         function select_unselect_bboxes(self)
+%             if self.bbox_double_click > 1
+%                 idx = self.get_selected_bbox_idx();
+%                 self.bboxes(idx).Selected = xor(self.bboxes(idx).Selected,self.bboxes(idx).Selected);
+%                 self.bbox_double_click = 1;
+%             else
+%                 self.bbox_double_click = self.bbox_double_click + 1;
+%             end
+%         end
     end
 end
 

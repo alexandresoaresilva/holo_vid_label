@@ -63,22 +63,25 @@ classdef HoloVid < matlab.mixin.Copyable
                 self.txt_xy = round(self.sqr_fr_side_sz/8);
                 self.frs_to_which_bboxes_have_been_applied = [];
                 self.fr_data_cleared = false;
-                self.vid_norm_done =false;
+                self.vid_norm_done = false;
             end
         end
     end
     methods(Access=public)
-        function add_bbox_to_selected_fr(self, bbox)
+        function add_bbox_to_selected_fr(self, bbox, class_id)
             if nargin < 2
                 bbox = [];
             end
             
+            if nargin < 3
+               class_id = 'feature'; 
+            end
+            
             if isempty(bbox)
-                bbox = drawrectangle(self.parent_ax_obj);
+                bbox = drawrectangle(self.parent_ax_obj, 'Label',class_id);
             end
             fr = self.get_frame();
             fr.add_bbox_to_rect_array(bbox);
-            
             
             self.bboxes_have_just_been_added = true;
             self.add_princip_fr_no();
@@ -181,7 +184,7 @@ classdef HoloVid < matlab.mixin.Copyable
             if copy_bboxes_to_prev_fr
                 self.copy_bboxes_to_previous_frame();
             end
-            self.clear_ax_obj_parent_for_bboxes();
+            self.clear_ax_obj_parent_for_bboxes();        
             
             self.selected_fr_no = self.selected_fr_no - 1;
             if self.selected_fr_no < 1
@@ -204,7 +207,7 @@ classdef HoloVid < matlab.mixin.Copyable
         end
         function set_cutoff_fr(self, new_cutoff)
             self.previous_cutoff = self.cutoff_frame_no;
-            if new_cutoff > self.no_of_frames
+            if new_cutoff > self.no_of_framesvid_file_path
                 new_cutoff = self.no_of_frames;
             elseif new_cutoff <  1
                 new_cutoff = 1;
@@ -253,6 +256,44 @@ classdef HoloVid < matlab.mixin.Copyable
             fr_rate = self.framerate;
         end
         
+        function write_bboxes_to_txt(self, labels_path)
+           if nargin < 2
+               labels_path = 'label_files';
+           end
+           
+           %<videos dir>/label_files
+           folder_path = [self.vid_file_path '\' labels_path];
+           if isunix()
+                folder_path = regexprep(folder_path, '\\+', '/');
+           end
+           
+           if ~exist(folder_path, 'dir')
+               mkdir(folder_path);
+           end
+           
+           %<videos dir>/label_files/<vid name>/
+           folder_path = [self.vid_file_path '\' labels_path '\' self.vid_name(1:end-4) '\'];
+           
+           if isunix()
+                folder_path = regexprep(folder_path, '\\+', '/');
+           end
+           
+           if ~exist(folder_path, 'dir')
+               mkdir(folder_path);
+           end
+           
+           
+           folder_path = [folder_path self.vid_name(1:end-4)]; 
+           for i=1:self.no_of_frames
+               fr = self.get_frame(i);
+               bboxes_matrix = fr.get_all_bboxes_as_matrix();
+               if ~isempty(bboxes_matrix)
+                   % <videos folder>/label_files/<vid name>/<vid name>_fr<fr no.>.txt
+                   file_path = [folder_path '_fr' num2str(i) '.txt'];
+                   writematrix(bboxes_matrix, file_path,'Delimiter',' ');
+               end
+           end
+        end
         function clear_frame_imgs_for_saving_labels(self)
             for i=1:self.no_of_frames
                 fr = self.get_frame(i);
@@ -403,6 +444,10 @@ classdef HoloVid < matlab.mixin.Copyable
             end
             idx = find(self.deriv_frames == self.selected_fr_no,1);
             self.deriv_frames(idx) = [];
+        end
+        function make_dirs_for_storing_labels_n_frs(self)
+            
+            
         end
     end
 end
