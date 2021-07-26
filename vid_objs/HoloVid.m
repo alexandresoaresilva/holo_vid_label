@@ -68,17 +68,20 @@ classdef HoloVid < matlab.mixin.Copyable
         end
     end
     methods(Access=public)
-        function add_bbox_to_selected_fr(self, bbox, class_id)
+        function add_bbox_to_selected_fr(self, bbox, class_id, bbox_color)
             if nargin < 2
                 bbox = [];
             end
             
             if nargin < 3
-               class_id = 'feature'; 
+               class_id = '0'; 
+            end
+            if nargin < 4
+               bbox_color =  [0 0.447 0.741]; 
             end
             
             if isempty(bbox)
-                bbox = drawrectangle(self.parent_ax_obj, 'Label',class_id);
+                bbox = drawrectangle(self.parent_ax_obj, 'Label',class_id,'Color',bbox_color);
             end
             fr = self.get_frame();
             fr.add_bbox_to_rect_array(bbox);
@@ -286,11 +289,12 @@ classdef HoloVid < matlab.mixin.Copyable
            folder_path = [folder_path self.vid_name(1:end-4)]; 
            for i=1:self.no_of_frames
                fr = self.get_frame(i);
-               bboxes_matrix = fr.get_all_bboxes_as_matrix();
-               if ~isempty(bboxes_matrix)
+               bboxes_cell = fr.get_bboxes_n_class_ids();
+               if ~isempty(bboxes_cell)
                    % <videos folder>/label_files/<vid name>/<vid name>_fr<fr no.>.txt
                    file_path = [folder_path '_fr' num2str(i) '.txt'];
-                   writematrix(bboxes_matrix, file_path,'Delimiter',' ');
+                   writecell(bboxes_cell, file_path,'Delimiter',' ');
+%                    writematrix(bboxes_matrix, file_path,'Delimiter',' ');
                end
            end
         end

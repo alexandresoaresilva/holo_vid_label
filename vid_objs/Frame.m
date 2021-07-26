@@ -134,7 +134,7 @@ classdef Frame < handle
                 delete(bbox_rect);
                 clear bbox_rect;
             else
-                bbox_rect.SelectedColor = 'b';
+%                 bbox_rect.SelectedColor = 'b';
                 
 %                 addlistener(bbox_rect,'ROIClicked', @(src, evt)select_unselect_bboxes(self));
                 if self.fr_has_NO_bboxes()
@@ -261,12 +261,13 @@ classdef Frame < handle
                 bboxes = [self.bboxes(:).copy];
             end
         end
-        function bboxes_matrix = get_all_bboxes_as_matrix(self)
+        function bboxes_cell = get_bboxes_n_class_ids(self)
             bbox_rect = self.get_all_rect_bboxes();
             L = length(bbox_rect);
-            bboxes_matrix = zeros(L,4);
+            bboxes_cell = cell(L, 2);
             for i=1:L
-                bboxes_matrix(i,:) = bbox_rect(i).Position;
+                bboxes_cell{i,1} = [bbox_rect(i).Label ':'];
+                bboxes_cell{i,2} = bbox_rect(i).Position;
             end
         end
     end
@@ -334,4 +335,3 @@ classdef Frame < handle
 %         end
     end
 end
-
