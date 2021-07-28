@@ -23,8 +23,8 @@ To load short videos, either:
 
 Bounding boxes are saved inside the the folder where the labeled videos are, in a directory called **label_files**. Two types of files are saved:
 
-1. **<vid name>.mat** files: they represent HoloVid objects without the frame images stored.
+    1. <vid name>.mat files: they represent HoloVid objects without the frame images stored.
     
-2. **<vid name>_fr<frame no.>.txt** files: each line shows the class id (number) followed a colon, followed by coordinates for the bounding box, delimited by whitespace.
+    2. <vid name>_fr<frame no.>.txt files: each line shows the class id (number) followed a colon, followed by coordinates for the bounding box, delimited by whitespace.
     	
     	 <class id>: x y w h
