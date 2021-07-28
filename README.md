@@ -25,6 +25,6 @@ Bounding boxes are saved inside the the folder where the labeled videos are, in 
 
     1. <vid name>.mat files: they represent HoloVid objects without the frame images stored.
     
-    2. <vid name>_fr<frame no.>.txt files: each line shows the class id (number) followed by coordinates for the bounding box, with a delimite of one whitespace.
+    2. <vid name>_fr<frame no.>.txt files: each line shows the class id (number) followed by coordinates for the bounding box, with a delimiter of one whitespace.
     	
     	 <class id>: x y w h
