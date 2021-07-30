@@ -110,6 +110,7 @@ classdef HoloVidsHolder < matlab.mixin.Copyable
 
             vid_obj = self.vid_obj_map(vid_name_no_ext);
             vid_obj_dummy = vid_obj.copy();
+            vid_obj_dummy.write_bboxes_to_txt();
             vid_obj_dummy.clear_frame_imgs_for_saving_labels();
             folder_path = [self.vid_files_path '\label_files'];
             file_path = [folder_path '\' vid_name_no_ext '_bboxes.mat'];
@@ -118,11 +119,11 @@ classdef HoloVidsHolder < matlab.mixin.Copyable
                 folder_path = regexprep(folder_path, '\\+', '/');
                 file_path = [folder_path '/' vid_name_no_ext '_bboxes.mat'];
             end
-%             cd(self.app_path); %fixes behavior of not being able to save
             
             if exist(folder_path,'dir') ~= 7
                 mkdir(folder_path);
             end
+           
             save(file_path, 'vid_obj_dummy');
         end
         
@@ -134,22 +135,40 @@ classdef HoloVidsHolder < matlab.mixin.Copyable
     end
     methods(Access=private)
         function find_n_reload_labels(self)
-            self.get_label_file_names();
+            using_local_labels = self.get_label_file_names();
+            labels_path = [self.vid_files_path '\label_files'];
+            
+            if using_local_labels
+                labels_path = 'label_files';
+            end
+            
             for f=self.stored_label_files
                 file_name = f{1};
-                file_path =   ['label_files\' file_name];
+                file_path = [labels_path '\' file_name];
                 if isunix()
-                    file_path = regexprep(file_path, '\\', '/');
+                    file_path = regexprep(file_path, '\\+', '/');
                 end
                 load(file_path, 'vid_obj_dummy');
                 self.add_holo_vid_obj_to_map(vid_obj_dummy);
             end
         end
         
-        function get_label_file_names(self)
-            d = dir('label_files');
+        function using_local_labels = get_label_file_names(self)
+            using_local_labels = false;
+            labels_path = [self.vid_files_path '\label_files'];
+                
+            if isunix()
+                labels_path = regexprep(labels_path, '\\', '/');
+            end
+            
+            d = dir(labels_path);
             file_names = {d(:).name};
             idx = contains(file_names, 'bboxes.mat');
+            if isempty(idx)
+                using_local_labels = true;
+                d = dir('label_files');
+                file_names = {d(:).name};
+            end
             self.stored_label_files = file_names(idx);
         end
     end
