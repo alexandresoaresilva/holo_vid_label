@@ -57,6 +57,7 @@ classdef HoloVidsHolder < matlab.mixin.Copyable
         end
         function add_holo_vid_obj_to_map(self, vid_obj)
             vid_obj.clear_ax_obj_parent_for_bboxes();
+            vid_obj.clear_frame_imgs_for_saving_labels(); %needed for clearing memory
             if vid_obj.vid_has_at_least_one_bbox()
                 vid_obj.rem_invalid_bboxes_from_all_fr();
                 self.last_vid_added = vid_obj.vid_name(1:end-4);
