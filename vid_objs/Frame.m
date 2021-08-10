@@ -324,6 +324,7 @@ classdef Frame < handle
             end
         end
         
+        
 %         function select_unselect_bboxes(self)
 %             if self.bbox_double_click > 1
 %                 idx = self.get_selected_bbox_idx();

@@ -3,8 +3,7 @@
 
 Matlab version required: 2021a.
 
-
-![alt text](https://github.com/alexandresoaresilva/holo_vid_label/blob/main/docs/UI.png)
+![alt text](https://github.com/alexandresoaresilva/holo_vid_label/blob/experimental/docs/UI.png)
 
 Holo Video Labeler is a MATLAB app that allows for labeling individual frames in a video. The app was created to label features in cotton fibers found in videos of the z-stack of microscopic holograms of those fibers. This app was developed for the Applied Vision Lab at Texas Tech University.
 
@@ -26,6 +25,6 @@ Bounding boxes are saved inside the the folder where the labeled videos are, in 
 
     1. <vid name>.mat files: they represent HoloVid objects without the frame images stored.
     
-    2. <vid name>_fr<frame no.>.txt files: each line shows the class id (number) followed a colon, followed by coordinates for the bounding box, delimited by whitespace.
+    2. <vid name>_fr<frame no.>.txt files: each line shows the class id (number) followed by coordinates for the bounding box, with a delimiter of one whitespace.
     	
     	 <class id>: x y w h

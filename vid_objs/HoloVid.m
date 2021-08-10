@@ -290,11 +290,14 @@ classdef HoloVid < matlab.mixin.Copyable
            for i=1:self.no_of_frames
                fr = self.get_frame(i);
                bboxes_cell = fr.get_bboxes_n_class_ids();
-               if ~isempty(bboxes_cell)
+               file_path = [folder_path '_fr' num2str(i) '.txt'];
+               if isempty(bboxes_cell) %check if file exists and, if it does, deletes it
+                   if exist(file_path,'file')
+                       delete(file_path);
+                   end
+               else
                    % <videos folder>/label_files/<vid name>/<vid name>_fr<fr no.>.txt
-                   file_path = [folder_path '_fr' num2str(i) '.txt'];
                    writecell(bboxes_cell, file_path,'Delimiter',' ');
-%                    writematrix(bboxes_matrix, file_path,'Delimiter',' ');
                end
            end
         end
