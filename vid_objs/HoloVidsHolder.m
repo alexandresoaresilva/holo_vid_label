@@ -39,9 +39,9 @@ classdef HoloVidsHolder < matlab.mixin.Copyable
             self.set_vid_files_path(vid_files_path);
             self.ax_obj_for_vid_disp = ax_obj_for_vid_disp;
             if ~isempty(self.vid_files_path)
-                if isempty(vid_obj) %object is being reloaded
-                    self.find_n_reload_labels();
-                else
+                if ~isempty(vid_obj) %object is being reloaded
+%                     self.find_n_reload_labels();
+%                 else
                     self.add_holo_vid_obj_to_map(vid_obj);
                     self.is_empty = false;
                 end
