@@ -1,8 +1,0 @@
-NN/detector.mat
-NN/detector.mat.html
-app_data/curr_vids_path.mat
-pathdef.m
-label_files/
-NN/detector.*
-*.pth
-/home/alex/Desktop/repos/holo_vid_label/NN/docker_py_model/*.pth
