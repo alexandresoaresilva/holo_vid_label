@@ -1,22 +1,26 @@
 classdef PyModel < handle
+    properties(Access=public)
+       docker_repo_n_tag 
+    end
     properties(Access=private)
         opt
         server_port
         curr_req_no
     end
     methods(Access=public)
-        function self = PyModel(server_port, test_mode)
-            if nargin < 1
+        function self = PyModel(docker_repo_n_tag, server_port, test_mode)
+            if nargin < 2
 %                 x = hdldaemon('socket', 0);
 %                 server_port = str2double(x.ipc_id);
 %                 hdldaemon('kill');
                 server_port = 6006;
             end 
             
-            if nargin <2 
+            if nargin <3
                 
                test_mode = false; 
             end
+            self.docker_repo_n_tag = docker_repo_n_tag;
             self.load_webwrite_opt();
             self.server_port = num2str(server_port);
             if ~test_mode
@@ -46,7 +50,7 @@ classdef PyModel < handle
                 end
             end
         end
-        function set_new_obj_score_n_nms_thresh(self, score_thresh, nms_thresh)
+        function response = set_new_obj_score_n_nms_thresh(self, score_thresh, nms_thresh)
             if nargin < 3
                 nms_thresh = 0.45; %larger than the default (for the container) 0.39
             end
@@ -60,34 +64,28 @@ classdef PyModel < handle
 %             
 %         end
         function kill_model_server(self)
-            if isunix()
-                !docker stop holo_cotton_model
-                !docker container rm holo_cotton_model
-            end
-            
-%             if ismac()
-%                 system(['kill $(lsof -i tcp:' self.server_port ' | tail -n +2 | awk ''{ print $2 }'')']);
-%             elseif isunix() %linux
-%                 system(['/bin/bash fuser -k ' self.server_port '/tcp']);
-%             elseif ispc()% windows
-%                 %windows 2nd ver: for /f "tokens=5" %a in ('netstat -aon ^| find ":6006" ^| find "LISTENING"') do taskkill /f /pid %a
-%                 system(['kill $(lsof -t -i :' self.server_port ')']);
-%             end
+            !docker stop py_model
+            !docker container rm py_model
         end
     end
     methods(Access=private)
         function load_model_server(self)
+            
+            
+            
+            docker_cmd = ['docker run -p ' self.server_port ':5000 --name py_model -it ' self.docker_repo_n_tag];
+            
+            open_terminal_window_cmd = '';
             if ismac()
                 %do nothing
             elseif isunix()
-                system(['gnome-terminal -- docker run -p ' self.server_port ':5000 --name holo_cotton_model -it py_model']);
+                open_terminal_window_cmd = 'gnome-terminal -- '; %space for docker call
             elseif ispc()
-            
+                open_terminal_window_cmd = 'start cmd /c '; %space for docker call
             end
-%             pause(0.5);
-%             while ~self.model_server_is_up()
-%                 pause(0.5);
-%             end
+            
+            
+            system([open_terminal_window_cmd docker_cmd]);
         end
         function gen_request_id(self)
            self.curr_req_no = randi(1e6); 
