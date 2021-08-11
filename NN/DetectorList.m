@@ -14,10 +14,12 @@ classdef DetectorList < handle
         py_model_available
         score_thresh
         nms_thresh
+        py_model_repo_n_tag 
     end
     
     methods(Access=public)
         function self = DetectorList()
+            self.py_model_repo_n_tag  = 'alexandresoaresilva/holo_cotton_feat_detector:version0.3';
             self.py_model_obj = [];
             self.using_python = false;
             self.detector_found = false;
@@ -57,7 +59,7 @@ classdef DetectorList < handle
         end
         function find_n_load_detectors(self)
             self.find_detectors();
-            if ~selfself.py_model_available.detector_loaded
+            if ~self.detector_loaded
                 self.load_detector();
             end
         end
@@ -74,7 +76,7 @@ classdef DetectorList < handle
             end
             if contains(sel_detect_file,'py_model')
                 self.using_python = true;
-                self.py_model_obj = PyModel();
+                self.py_model_obj = PyModel(self.py_model_repo_n_tag);
             else
                 self.kill_py_model();
                 
@@ -140,18 +142,11 @@ classdef DetectorList < handle
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     methods(Access=private)
         function check_if_py_model_available(self)
-            cmd_out = '';
-            if isunix()
-                [r, cmd_out]=system('systemctl is-active docker');
-            elseif ispc()
-               %do windows stuff
-            end
-            
-            docker_is_present = strcmpi(regexprep(cmd_out,'\s+',''),'active');
+            [r, ~]=system('docker -v');     docker_is_present = r == 0;
 
             if docker_is_present
-                [r, cmd_out]=system('docker image inspect py_model');    
-                self.py_model_available = ~contains(cmd_out,'No such image: py_model');
+                [r, cmd_out] = system(['docker image inspect ' self.py_model_repo_n_tag]);    
+                self.py_model_available = ~contains(cmd_out, 'No such image: py_model');
             end
         end
     end
