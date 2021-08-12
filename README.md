@@ -17,9 +17,9 @@ Warning: The app was not tested with videos larger than one hundred frames (it w
 
 To load short videos, click on the upper-right button **select video (s)**.
 
-Bounding boxes are saved inside the the folder where the labeled videos are, in a directory called **label_files**. 
+Bounding boxes are stored inside the the folder where the labeled videos are, in a directory called **label_files**, during the app closing process.
 
-Two types of files are saved:
+Two types of files related to the labels are saved:
 
     1. <vid name>.mat files: they represent HoloVid objects without the frame images stored.
     
