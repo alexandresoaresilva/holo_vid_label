@@ -12,6 +12,7 @@ import os
 import re
 
 app = Flask(__name__)
+predictor =  d2_model_load.load_model()
 
 def unpack_img(msg_json):
     img = None
@@ -44,8 +45,6 @@ def unpack_set_opts(msg_json):
 @app.route('/process_request', methods=['POST'])
 def process_request():
     global predictor
-    r = request.get_data()
-    msg = r.decode("utf-8")
 
     msg_json = request.get_json()
     req_no = msg_json["req_no"]
@@ -62,6 +61,7 @@ def process_request():
         # response["bboxes"] = str(bbox.pred_boxes[:].tensor.numpy())
         response["bboxes"] = str(bbox.pred_boxes[:].tensor.numpy())
         response["scores"] = str(bbox.scores[:].numpy())
+        del bbox, outputs
     elif "set" in msg_json:
         opts, set_stuff = unpack_set_opts(msg_json)
         set_stuff = "set" + set_stuff
@@ -76,6 +76,7 @@ def process_request():
         response["result"] = "no_action"
     
     response_pickled = jsonpickle.encode(response)
+    del msg_json, response
 
     return Response(response=response_pickled, status=200, mimetype="application/json")
 
@@ -88,8 +89,6 @@ if __name__ == "__main__":
     port_server =  vars(args)["port"]
     if port_server != None:
         port_server =  port_server[0]
-    
-    predictor =  d2_model_load.load_model()
     
     if port_server == None:
         port_server = 5000
