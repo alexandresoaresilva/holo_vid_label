@@ -366,6 +366,11 @@ classdef HoloVid < matlab.mixin.Copyable
                 fr.rem_invalid_bboxes();
             end
         end
+        function change_class_of_selected_bbox(self, new_class)
+            %new class is struct with fields color, class_id
+            fr = self.get_frame();
+            fr.change_selected_bbox_class(new_class);
+        end
     end
     
     methods(Access=private)
@@ -426,18 +431,18 @@ classdef HoloVid < matlab.mixin.Copyable
             end
         end
         
-        function fr = get_frame(self, fr_no)
+        function fr = get_frame(self, fr_no)  
             if nargin < 2
                 fr_no = self.selected_fr_no;
             end
             
             if fr_no > self.no_of_frames
                 fr_no = self.no_of_frames;
-            elseif fr_no < 1
+            elseif fr_no < 1  
                 fr_no = 1;
             end
             
-            fr = self.frames(fr_no);
+            fr = self.frames(fr_no);  
         end
         function add_princip_fr_no(self)
             if isempty(self.princ_frames)

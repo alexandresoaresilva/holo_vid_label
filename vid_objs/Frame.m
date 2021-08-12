@@ -270,6 +270,11 @@ classdef Frame < handle
                 bboxes_cell{i,2} = bbox_rect(i).Position;
             end
         end
+        function change_selected_bbox_class(self, new_class)
+            idx = self.get_selected_bbox_idx();
+            self.bboxes(idx).Color = new_class.color;
+            self.bboxes(idx).Label = new_class.class_id;
+        end
     end
     methods(Access=private)
         function ret = fr_has_at_least_one_bbox(self)
