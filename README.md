@@ -3,7 +3,7 @@
 
 Matlab version required: 2021a.
 
-![alt text](https://github.com/alexandresoaresilva/holo_vid_label/blob/experimental/docs/UI.png)
+![alt text](https://github.com/alexandresoaresilva/holo_vid_label/blob/main/docs/UI.png)
 
 Holo Video Labeler is a MATLAB app that allows for labeling individual frames in a video. The app was created to label features in cotton fibers found in videos of the z-stack of microscopic holograms of those fibers. This app was developed for the Applied Vision Lab at Texas Tech University.
 
