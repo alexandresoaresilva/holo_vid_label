@@ -15,16 +15,22 @@ Warning: The app was not tested with videos larger than one hundred frames (it w
 
 ### Always start the app using the holo_vid_labeler.m script.
 
-To load short videos, either:
+To load short videos, click on the upper-right button **select video (s)**.
 
-1. Store the videos into the app's folder **\_videos**
-    OR
-2. Select videos from a folder using the **select video (s)** button.
+Bounding boxes are saved inside the the folder where the labeled videos are, in a directory called **label_files**. 
 
-Bounding boxes are saved inside the the folder where the labeled videos are, in a directory called **label_files**. Two types of files are saved:
+Two types of files are saved:
 
     1. <vid name>.mat files: they represent HoloVid objects without the frame images stored.
     
-    2. <vid name>_fr<frame no.>.txt files: each line shows the class id (number) followed by coordinates for the bounding box, with a delimiter of one whitespace.
+    2. <vid name>_fr<frame no.>.txt files: each line shows the class id (a number) followed by coordinates for the bounding box, with a delimiter of one whitespace.
     	
     	 <class id>: x y w h
+         
+         Example: 
+         
+            1: 257.91785 93.007645 167.68441 199.882305
+         
+         If the bounding box was produced by a model detection, the <class id> will be a decimal number with the class score. Example:
+         
+            .98: 837.08826 492.04996 153.99164 95.62204
