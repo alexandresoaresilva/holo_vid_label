@@ -1,2 +1,2 @@
 cd model_files/
-python model_server.py
+LD_PRELOAD=/usr/local/lib/libjemalloc.so python model_server.py

@@ -27,11 +27,11 @@ opt.CharacterEncoding = 'UTF-8';
 opt.RequestMethod = 'post';
 
 
-sqrtresponse = webwrite('http://localhost:6006/process_request', msg_json);
+sqrtresponse = webwrite('http://localhost:5000/predict_bboxes', msg_json)
 
-if msg_json.req_no == sqrtresponse.req_no
-    sqrtresponse.bboxes = str2num(regexprep(sqrtresponse.bboxes,'\[+|\]+',''));
-end
+% if msg_json.req_no == sqrtresponse.req_no
+%     sqrtresponse.bboxes = str2num(regexprep(sqrtresponse.bboxes,'\[+|\]+',''));
+% end
 
 %shutdown on windows: kill $(lsof -t -i :PORT_NUMBER)
 %shutdown on ubuntu: fuser -k 6006/tcp

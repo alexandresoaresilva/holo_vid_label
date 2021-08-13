@@ -6,9 +6,13 @@ classdef PyModel < handle
         opt
         server_port
         curr_req_no
+        test_mode
     end
     methods(Access=public)
-        function self = PyModel(docker_repo_n_tag, server_port, test_mode)
+        function self = PyModel(docker_repo_n_tag, server_port)
+            if nargin < 1 
+               docker_repo_n_tag = []; 
+            end
             if nargin < 2
 %                 x = hdldaemon('socket', 0);
 %                 server_port = str2double(x.ipc_id);
@@ -16,18 +20,17 @@ classdef PyModel < handle
                 server_port = 6006;
             end 
             
-            if nargin <3
-                
-               test_mode = false; 
-            end
+            
+            self.test_mode = isempty(docker_repo_n_tag);
+            
             self.docker_repo_n_tag = docker_repo_n_tag;
             self.load_webwrite_opt();
             self.server_port = num2str(server_port);
-            if ~test_mode
+            if ~self.test_mode
                 self.load_model_server();
             end
         end
-        function [bbox, scores] = predict(self, I)
+        function [bboxes, scores] = predict(self, I)
             if length(I(1,1,:)) > 1 %3 channels
                 I = I(:,:,1); %it's really just grayscale
             end
@@ -38,15 +41,17 @@ classdef PyModel < handle
             self.gen_request_id();
             msg_json.req_no = self.curr_req_no;
             msg_json.img = I(:);
-            response = webwrite(['http://localhost:' self.server_port '/process_request'], msg_json, self.opt);
-            bbox = [];  scores = [];
+            response = webwrite(['http://localhost:' self.server_port '/predict_bboxes'], msg_json, self.opt);
+            bboxes = [];  scores = [];
             if msg_json.req_no == self.curr_req_no
-                bbox = str2num(regexprep(response.bboxes,'\[+|\]+',''));
-                if any(bbox)
-                    bbox(:,3:4) = bbox(:,3:4) - bbox(:,1:2);
-                    str_scores = strip(regexprep(response.scores,'\[+|\]+',''));
-                    cell_list = strsplit(str_scores, {' ','\t'});
-                    scores = cell2mat(cellfun(@(x)str2num(x),cell_list,'UniformOutput',false));
+                bboxes = response.bboxes;
+%                 bboxes = str2num(regexprep(response.bboxes,'\[+|\]+',''));
+                if any(bboxes)
+                    bboxes(:,3:4) = bboxes(:,3:4) - bboxes(:,1:2);
+                    scores = response.scores;
+%                     str_scores = strip(regexprep(response.scores,'\[+|\]+',''));
+%                     cell_list = strsplit(str_scores, {' ','\t'});
+%                     scores = cell2mat(cellfun(@(x)str2num(x),cell_list,'UniformOutput',false));
                 end
             end
         end
@@ -58,7 +63,7 @@ classdef PyModel < handle
             msg_json.req_no = self.curr_req_no;
             msg_json.set.score_thresh = score_thresh;
             msg_json.set.nms_thresh = nms_thresh;
-            response = webwrite(['http://localhost:' self.server_port '/process_request'], msg_json, self.opt);
+            response = webwrite(['http://localhost:' self.server_port '/set_new_model'], msg_json, self.opt);
         end
 %         function set_new_model_into_container(self)
 %             
@@ -70,11 +75,7 @@ classdef PyModel < handle
     end
     methods(Access=private)
         function load_model_server(self)
-            
-            
-            
             docker_cmd = ['docker run -p ' self.server_port ':5000 --name py_model -it ' self.docker_repo_n_tag];
-            
             open_terminal_window_cmd = '';
             if ismac()
                 %do nothing
@@ -83,8 +84,7 @@ classdef PyModel < handle
             elseif ispc()
                 open_terminal_window_cmd = 'start cmd /c '; %space for docker call
             end
-            
-            
+
             system([open_terminal_window_cmd docker_cmd]);
         end
         function gen_request_id(self)
@@ -95,7 +95,7 @@ classdef PyModel < handle
             self.gen_request_id();
             msg_json.req_no = self.curr_req_no;
             msg_json.test = true;
-            response = webwrite(['http://localhost:' self.server_port '/process_request'], msg_json, self.opt);
+            response = webwrite(['http://localhost:' self.server_port '/predict_bboxes'], msg_json, self.opt);
             is_up= false;
             if ~ischar(response)
                 if isfield(response,'result')
