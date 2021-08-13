@@ -20,7 +20,7 @@ classdef DetectorList < handle
     methods(Access=public)
         function self = DetectorList()
 %             self.py_model_repo_n_tag  = 'py_model:latest';
-            self.py_model_repo_n_tag  = 'alexandresoaresilva/holo_cotton_feat_detector:version0.4';
+            self.py_model_repo_n_tag  = 'alexandresoaresilva/holo_cotton_feat_detector:version0.5';
             self.py_model_obj = [];
             self.using_python = false;
             self.detector_found = false;
