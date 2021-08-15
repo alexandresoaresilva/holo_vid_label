@@ -34,3 +34,13 @@ Two types of files related to the labels are saved:
          If the bounding box was produced by a model detection, the <class id> will be a decimal number with the class score. Example:
          
             .98: 837.08826 492.04996 153.99164 95.62204
+   ### Using the pre-trained networks ###
+   
+   To use the Matlab-trained Faster RCNN, just run the app and download the model from the dropbox link copied to your clipboard. The app will give instructions on how to load the model.
+   
+   To run the Python-based Faster RCNN (detectron2/pytorch), install Docker on your Windows or Linux system. Then, pull the holo cotton feat detector container from Docker Hub:
+   
+   https://hub.docker.com/r/alexandresoaresilva/holo_cotton_feat_detector
+   
+   After this setup, run the Holo Video Labeler app again; it will automatically detect the presence of the py_model and list it as one of the available networks for feature detection.
+   
