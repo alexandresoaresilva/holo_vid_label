@@ -38,7 +38,9 @@ Two types of files related to the labels are saved:
    
    To use the Matlab-trained Faster RCNN, just run the app and download the model from the dropbox link copied to your clipboard. The app will give instructions on how to load the model.
    
-   To run the Python-based Faster RCNN (detectron2/pytorch), install Docker on your Windows or Linux system. Then, pull the holo cotton feat detector container from Docker Hub:
+   To run the Python-based Faster RCNN (detectron2/pytorch), install Docker on your Windows or Linux system (on Windows, Docker requires Windows Subsystem for Linux). 
+   
+   After isntalling Docker, pull the holo cotton feat detector container from the Docker Hub:
    
    https://hub.docker.com/r/alexandresoaresilva/holo_cotton_feat_detector
    
