@@ -40,7 +40,7 @@ Two types of files related to the labels are saved:
    
    To run the Python-based Faster RCNN (detectron2/pytorch), install Docker on your Windows or Linux system (on Windows, Docker requires Windows Subsystem for Linux). 
    
-   After isntalling Docker, pull the holo cotton feat detector container from the Docker Hub:
+   After installing Docker, pull the holo cotton feat detector container from the Docker Hub:
    
    https://hub.docker.com/r/alexandresoaresilva/holo_cotton_feat_detector
    
