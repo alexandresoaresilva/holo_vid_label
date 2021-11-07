@@ -150,14 +150,28 @@ classdef Frame < handle
             if isempty(self.min_bbox_side_sz) %for classes that didn't have this property
                 self.min_bbox_side_sz = 50;
             end
+            
+            
+            idx_to_delete = zeros(1,length(self.bboxes));
             for i=1:length(self.bboxes)
                 r = self.bboxes(i);
-                not_valid = all(r.Position(3:4) <= self.min_bbox_side_sz);
-                if not_valid
-                    self.bboxes(i).delete();
-                    self.bboxes(i) = [];
+                not_valid = ~isvalid(r);
+                
+                if ~not_valid
+                    not_valid = isempty(r.Position);
+                    if ~not_valid
+                        not_valid = all(r.Position(3:4) <= self.min_bbox_side_sz);
+                    end
                 end
+                
+                if not_valid
+                    idx_to_delete(i) = 1;
+                    self.bboxes(i).delete();
+                end                    
             end
+            idx_to_delete = logical(idx_to_delete);
+            
+            self.bboxes(idx_to_delete) = [];
             if isempty(self.bboxes)
                 self.is_principal = false;
             end
